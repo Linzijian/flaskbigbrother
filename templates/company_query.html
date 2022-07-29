@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<p></p>
+<div class="container">
+    <h4>查询公司信息</h4>
+
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+    <div class = "alert alert-danger">
+        {{ message }}
+    </div>
+    {%- endfor %}
+    <form class="form-inline" action="{{ url_for('company_query') }}" method = "post">
+        <label for="inputPassword2">公司名称： </label>
+        <input value="{{name}}" type="text" class="form-control" id="inputPassword2" placeholder="所有公司" name="name">
+        <button type="submit" class="btn btn-primary">查询</button>
+    </form>
+
+    <p></p>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>公司名称</th>
+            <th>所属区</th>
+            <th>社保编号</th>
+<!--            <th>市申报密码</th>-->
+<!--            <th>用工备案密码</th>-->
+            <th>辽宁政务网用户名</th>
+            <th>辽宁政务网密码</th>
+<!--            <th>税号</th>-->
+<!--            <th>工伤保险比例(%)</th>-->
+            <th>是否正常申报</th>
+            <th>提交人</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for company in companys %}
+        <tr>
+            <td>{{ company.name }}</td>
+            <td>{{ company.position }}</td>
+            <td>{{ company.code }}</td>
+<!--            <td>{{ company.sbpass }}</td>-->
+<!--            <td>{{ company.bapass }}</td>-->
+            <td>{{ company.zwwname }}</td>
+            <td>{{ company.zwwpass }}</td>
+<!--            <td>{{ company.scode }}</td>-->
+<!--            <td>{{ company.injury_ratio }}</td>-->
+            <td>{{ company.is_valid }}</td>
+            <td>{{ company.person }}</td>
+            <th>
+                <a href="{{ url_for('company_update', name=company.name) }}" class="btn btn-success btn-sm" role="button">查看/修改</a>
+                &nbsp;<a href="{{ url_for('member_query', company_name=company.name) }}" class="btn btn-success btn-sm" role="button">查看人员</a>
+                &nbsp;<a href="#" class="btn btn-success btn-sm" role="button">历史缴费</a>
+<!--                <a href="#" class="btn btn-danger btn-sm" role="button">删除</a>-->
+            </th>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

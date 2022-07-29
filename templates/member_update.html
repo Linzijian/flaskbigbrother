@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>修改人员信息</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+function validateForm(){
+var is_valid=document.forms["myform"]["is_valid"].value;
+var injury_check=document.forms["myform"]["injury_check"].value;
+var endowment_check=document.forms["myform"]["endowment_check"].value;
+var unemployment_check=document.forms["myform"]["unemployment_check"].value;
+var medical_check=document.forms["myform"]["medical_check"].value;
+var birth_check=document.forms["myform"]["birth_check"].value;
+if (is_valid=="是" && (injury_check!="完成" || endowment_check!="完成" || unemployment_check!="完成" || medical_check!="完成" || birth_check!="完成")){
+  alert("五险均需在社保系统完成后，“五险均系统生效”字段才能设置为“是”");
+  return false;
+  }
+}
+
+function end_month_monitor(){
+    var end_month=document.forms["myform"]["end_month"].value;
+    if (end_month != ""){
+        document.getElementById("injury_check").innerHTML="其他";
+        document.getElementById("endowment_check").innerHTML="其他";
+        document.getElementById("unemployment_check").innerHTML="其他";
+        document.getElementById("medical_check").innerHTML="其他";
+        document.getElementById("birth_check").innerHTML="其他";
+        document.getElementById("is_valid").innerHTML="否";
+    }
+}
+</script>
+</head>
+<body>
+<p></p>
+<div class="container">
+    <h4>修改人员信息</h4>
+
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+         <div class = "alert alert-danger">
+            {{ message }}
+         </div>
+    {%- endfor %}
+    <p></p>
+    <form name="myform" onsubmit="return validateForm()" action="{{ url_for('member_update', member_id=members[0].member_id) }}" method = "post">
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">公司名称：</label>
+            <div class="col-3">
+                <select readonly="readonly" class="form-control" id="sel1" name="company_name">
+                    <option>{{members[0].company_name}}</option>
+<!--                    {% for company in companys %}-->
+<!--                    <option>{{company.name}}</option>-->
+<!--                    {% endfor %}-->
+                </select>
+<!--                <input type="text" class="form-control" id="inputPassword" name="company_name">-->
+            </div>
+<!--        </div>-->
+<!--        <div class="form-group row">-->
+            <label for="inputPassword" class="col-2 col-form-label">姓名：</label>
+            <div class="col-3">
+                <input required="required" value="{{members[0].name}}" type="text" class="form-control" id="inputPassword" name="name">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">身份证号：</label>
+            <div class="col-3">
+                <input required="required" value="{{members[0].id_card}}" type="text" class="form-control" id="inputPassword" name="id_card">
+            </div>
+<!--        </div>-->
+<!--        <div class="form-group row">-->
+            <label for="inputPassword" class="col-2 col-form-label">居住地址：</label>
+            <div class="col-3">
+                <input required="required" value="{{members[0].address}}" type="text" class="form-control" id="inputPassword" name="address">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">名族：</label>
+            <div class="col-3">
+                <input required="required" value="{{members[0].nationality}}" type="text" class="form-control" id="inputPassword" name="nationality">
+            </div>
+<!--        </div>-->
+<!--        <div class="form-group row">-->
+            <label for="inputPassword" class="col-2 col-form-label">开始缴纳月份：</label>
+            <div class="col-3">
+                <input value="{{members[0].begin_month}}" type="month" class="form-control" id="inputPassword" name="begin_month">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-3 col-form-label">停止缴纳月份<b><font color="Red">(减员需修改)</font></b>：</label>
+            <div class="col-2">
+                <select class="form-control" name="end_month" onchange="end_month_monitor()">
+                    <option>{{members[0].end_month}}</option>
+                    <option>{{cur_month}}</option>
+                    <option></option>
+                </select>
+<!--                <input value="{{members[0].end_month}}" type="month" class="form-control" id="inputPassword" name="end_month">-->
+            </div>
+            <label for="inputPassword" class="col-2 col-form-label">月工资：</label>
+            <div class="col-3">
+                <input required="required" value="{{members[0].salary}}" type="number" class="form-control" id="inputPassword" name="salary">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">工伤保险：</label>
+            <div class="col-3">
+                <select class="form-control" id="sel1" name="injury">
+                    <option>{{members[0].injury}}</option>
+                    <option>报</option>
+                    <option>不报</option>
+                </select>
+            </div>
+            <label for="inputPassword" class="col-3 col-form-label">
+                工伤社保系统生效<b><font color="Red">(减员需修改)</font></b>：
+            </label>
+            <div class="col-2">
+                <select class="form-control" name="injury_check">
+                    <option id="injury_check">{{members[0].injury_check}}</option>
+                    <option>建档审核</option>
+                    <option>基数审核</option>
+                    <option>解除备案</option>
+                    <option>删帐审核</option>
+                    <option>移除审核</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">养老保险：</label>
+            <div class="col-3">
+                <select class="form-control" id="sel1" name="endowment">
+                    <option>{{members[0].endowment}}</option>
+                    <option>报</option>
+                    <option>不报</option>
+                </select>
+            </div>
+            <label for="inputPassword" class="col-3 col-form-label">养老社保系统生效<b><font color="Red">(减员需修改)</font></b>：</label>
+            <div class="col-2">
+                <select class="form-control" id="sel1" name="endowment_check">
+                    <option id="endowment_check">{{members[0].endowment_check}}</option>
+                    <option>审核</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">失业保险：</label>
+            <div class="col-3">
+                <select class="form-control" id="sel1" name="unemployment">
+                    <option>{{members[0].unemployment}}</option>
+                    <option>报</option>
+                    <option>不报</option>
+                </select>
+            </div>
+            <label for="inputPassword" class="col-3 col-form-label">失业社保系统生效<b><font color="Red">(减员需修改)</font></b>：</label>
+            <div class="col-2">
+                <select class="form-control" id="sel1" name="unemployment_check">
+                    <option id="unemployment_check">{{members[0].unemployment_check}}</option>
+                    <option>审核</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">医疗保险：</label>
+            <div class="col-3">
+                <select class="form-control" id="sel1" name="medical">
+                    <option>{{members[0].medical}}</option>
+                    <option>报</option>
+                    <option>不报</option>
+                </select>
+            </div>
+            <label for="inputPassword" class="col-3 col-form-label">医疗社保系统生效<b><font color="Red">(减员需修改)</font></b>：</label>
+            <div class="col-2">
+                <select class="form-control" id="sel1" name="medical_check">
+                    <option id="medical_check">{{members[0].medical_check}}</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">生育保险：</label>
+            <div class="col-3">
+                <select class="form-control" id="sel1" name="birth">
+                    <option>{{members[0].birth}}</option>
+                    <option>报</option>
+                    <option>不报</option>
+                </select>
+            </div>
+            <label for="inputPassword" class="col-3 col-form-label">生育社保系统生效<b><font color="Red">(减员需修改)</font></b>：</label>
+            <div class="col-2">
+                <select class="form-control" id="sel1" name="birth_check">
+                    <option id="birth_check">{{members[0].birth_check}}</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-3 col-form-label">五险均系统生效：<b><font color="Red">(减员需修改)</font></b></label>
+            <div class="col-2">
+                <select class="form-control" id="sel1" name="is_valid">
+                    <option id="is_valid">{{members[0].is_valid}}</option>
+                    <option>是</option>
+                    <option>否</option>
+                </select>
+            </div>
+            <label for="inputPassword" class="col-2 col-form-label">提交人名称：</label>
+            <div class="col-3">
+                <input required="required" value="{{members[0].person}}" type="text" class="form-control" id="inputPassword" name="person">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">人员ID：</label>
+            <div class="col-3">
+                <input value="{{members[0].member_id}}" readonly="readonly" type="text" class="form-control" id="inputPassword" name="member_id">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">提交修改</button>
+    </form>
+</div>
+
+</body>
+</html>

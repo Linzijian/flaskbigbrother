@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>社保计算器</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+function update_data(){
+    var injury_base = document.getElementById("injury_base").value;
+    var injury_c = document.getElementById("injury_c").value;
+    var injury_i = document.getElementById("injury_i").value;
+    document.getElementById("injury_c_fee").innerHTML = (injury_base * injury_c / 100).toFixed(2);
+    document.getElementById("injury_i_fee").innerHTML = (injury_base * injury_i / 100).toFixed(2);
+
+    var endowment_base = document.getElementById("endowment_base").value;
+    var endowment_c = document.getElementById("endowment_c").value;
+    var endowment_i = document.getElementById("endowment_i").value;
+    document.getElementById("endowment_c_fee").innerHTML = (endowment_base * endowment_c / 100.0).toFixed(2);
+    document.getElementById("endowment_i_fee").innerHTML = (endowment_base * endowment_i / 100.0).toFixed(2);
+
+    var unemployment_base = document.getElementById("unemployment_base").value;
+    var unemployment_c = document.getElementById("unemployment_c").value;
+    var unemployment_i = document.getElementById("unemployment_i").value;
+    document.getElementById("unemployment_c_fee").innerHTML = (unemployment_base * unemployment_c / 100.0).toFixed(2);
+    document.getElementById("unemployment_i_fee").innerHTML = (unemployment_base * unemployment_i / 100.0).toFixed(2);
+
+    var medical_base = document.getElementById("medical_base").value;
+    var medical_c = document.getElementById("medical_c").value;
+    var medical_i = document.getElementById("medical_i").value;
+    document.getElementById("medical_c_fee").innerHTML = (medical_base * medical_c / 100.0).toFixed(2);
+    document.getElementById("medical_i_fee").innerHTML = (medical_base * medical_i / 100.0).toFixed(2);
+
+    var birth_base = document.getElementById("birth_base").value;
+    var birth_c = document.getElementById("birth_c").value;
+    var birth_i = document.getElementById("birth_i").value;
+    document.getElementById("birth_c_fee").innerHTML = (birth_base * birth_c / 100.0).toFixed(2);
+    document.getElementById("birth_i_fee").innerHTML = (birth_base * birth_i / 100.0).toFixed(2);
+
+    document.getElementById("company_total").innerHTML = ((injury_base * injury_c + endowment_base * endowment_c + unemployment_base * unemployment_c + medical_base * medical_c + birth_base * birth_c) / 100.0).toFixed(2);
+    document.getElementById("person_total").innerHTML = ((injury_base * injury_i + endowment_base * endowment_i + unemployment_base * unemployment_i + medical_base * medical_i + birth_base * birth_i) / 100.0).toFixed(2);
+    document.getElementById("total_fee").innerHTML = ((injury_base * injury_c + endowment_base * endowment_c + unemployment_base * unemployment_c + medical_base * medical_c + birth_base * birth_c + injury_base * injury_i + endowment_base * endowment_i + unemployment_base * unemployment_i + medical_base * medical_i + birth_base * birth_i) / 100.0).toFixed(2);
+
+}
+</script>
+</head>
+<body>
+<p></p>
+<div class="container">
+    <h4>社保计算器</h4>
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+    <div class = "alert alert-danger">
+        {{ message }}
+    </div>
+    {%- endfor %}
+
+
+    <table class="table table-hover table-striped">
+        <thead>
+        <tr>
+            <th>保险类型</th>
+            <th>单位/个人基数</th>
+            <th>单位比例（%）</th>
+            <th>单位金额</th>
+            <th>个人比例（%）</th>
+            <th>个人金额</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>工伤</td>
+            <td><input onchange="update_data()" value="{{ m_base['injury_base'] }}" type="text" class="form-control"  id="injury_base" size="6"></td>
+            <td><input onchange="update_data()" value="{{ m_base['injury_c'] }}" type="text" class="form-control"  id="injury_c" size="6"></td>
+            <td><p id="injury_c_fee" class="form-control">{{ m_base['injury_c_fee'] }}</p></td>
+            <td><input readonly="readonly" id="injury_i" class="form-control" value="{{ m_base['injury_i'] }}"></td>
+            <td><p id="injury_i_fee" class="form-control">{{ m_base['injury_i_fee'] }}</p></td>
+        </tr>
+        <tr>
+            <td>养老</td>
+            <td><input onchange="update_data()" value="{{ m_base['endowment_base'] }}" type="text" class="form-control"  id="endowment_base" size="6"></td>
+            <td><input readonly="readonly" id="endowment_c" class="form-control" value="{{ m_base['endowment_c'] }}"></td>
+            <td><p id="endowment_c_fee" class="form-control">{{ m_base['endowment_c_fee'] }}</p></td>
+            <td><input readonly="readonly" id="endowment_i" class="form-control" value="{{ m_base['endowment_i'] }}"></td>
+            <td><p id="endowment_i_fee" class="form-control">{{ m_base['endowment_i_fee'] }}</p></td>
+        </tr>
+        <tr>
+            <td>失业</td>
+            <td><input onchange="update_data()" value="{{ m_base['unemployment_base'] }}" type="text" class="form-control"  id="unemployment_base" size="6"></td>
+            <td><input readonly="readonly" id="unemployment_c" class="form-control" value="{{ m_base['unemployment_c'] }}"></td>
+            <td><p id="unemployment_c_fee" class="form-control">{{ m_base['unemployment_c_fee'] }}</p></td>
+            <td><input readonly="readonly" id="unemployment_i" class="form-control" value="{{ m_base['unemployment_i'] }}"></td>
+            <td><p id="unemployment_i_fee" class="form-control">{{ m_base['unemployment_i_fee'] }}</p></td>
+        </tr>
+        <tr>
+            <td>医疗</td>
+            <td><input onchange="update_data()" value="{{ m_base['medical_base'] }}" type="text" class="form-control"  id="medical_base" size="6"></td>
+            <td><input readonly="readonly" value="{{ m_base['medical_c'] }}" type="text" class="form-control"  id="medical_c"></td>
+            <td><p id="medical_c_fee" class="form-control">{{ m_base['medical_c_fee'] }}</p></td>
+            <td><input readonly="readonly" value="{{ m_base['medical_i'] }}" type="text" class="form-control"  id="medical_i"></td>
+            <td><p id="medical_i_fee" class="form-control">{{ m_base['medical_i_fee'] }}</p></td>
+        </tr>
+        <tr>
+            <td>生育</td>
+            <td><input onchange="update_data()" value="{{ m_base['birth_base'] }}" type="text" class="form-control"  id="birth_base" size="6"></td>
+            <td><input readonly="readonly" value="{{ m_base['birth_c'] }}" type="text" class="form-control"  id="birth_c"></td>
+            <td><p id="birth_c_fee" class="form-control">{{ m_base['birth_c_fee'] }}</p></td>
+            <td><input readonly="readonly" value="{{ m_base['birth_i'] }}" type="text" class="form-control"  id="birth_i"></td>
+            <td><p id="birth_i_fee" class="form-control">{{ m_base['birth_i_fee'] }}</p></td>
+        </tr>
+        </tbody>
+    </table>
+
+
+    <div class="form-group row">
+        <label for="inputPassword2" class="col-2 col-form-label">单位合计(元):</label>
+        <div class="col-2">
+            <p id="company_total" class="form-control">{{ m_base['company_total'] }}</p>
+        </div>
+        <label for="inputPassword2" class="col-2 col-form-label">个人合计(元):</label>
+        <div class="col-2">
+            <p id="person_total" class="form-control">{{ m_base['person_total'] }}</p>
+        </div>
+        <label for="inputPassword2" class="col-2 col-form-label">单位/个人合计(元):</label>
+        <div class="col-2">
+            <p id="total_fee" class="form-control">{{ m_base['total_fee'] }}</p>
+        </div>
+    </div>
+
+</div>
+
+</body>
+</html>

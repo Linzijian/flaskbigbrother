@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>查询人员信息</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<p></p>
+<div class="container">
+    <h4>查询人员信息</h4>
+
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+    <div class = "alert alert-danger">
+        {{ message }}
+    </div>
+    {%- endfor %}
+    <form class="form-inline" action="{{ url_for('member_query', company_name='all') }}" method = "post">
+        <label for="inputPassword2">姓名： </label>
+        <input value="{{name}}" type="text" class="form-control" id="inputPassword2" placeholder="张铁牛" name="name">
+        &nbsp;&nbsp;<label for="inputPassword2">公司名称： </label>
+        <input value="{{company_name}}" type="text" class="form-control" id="inputPassword2" placeholder="所有公司" name="company_name">
+        &nbsp;&nbsp;<button type="submit" class="btn btn-primary">查询</button>
+    </form>
+
+    <p></p>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>状态</th>
+            <th>姓名</th>
+            <th>公司名称</th>
+            <th>身份证号</th>
+<!--            <th>地址</th>-->
+<!--            <th>名族</th>-->
+            <th>开始缴纳月份</th>
+            <th>停止缴纳月份</th>
+<!--            <th>月工资</th>-->
+            <th>五险均系统生效</th>
+            <th>提交人名称</th>
+            <th>操作</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for member in members %}
+        <tr>
+            {% if member.end_month != "" and member.end_month <= cur_month %}
+            <td><a href="#" class="btn btn-danger btn-sm" role="button">减</a></td>
+            {% elif member.begin_month == cur_month %}
+            <td><a href="#" class="btn btn-success btn-sm" role="button">增</a></td>
+            {% else %}
+            <td>正常</td>
+            {% endif %}
+            <td>{{ member.name }}</td>
+            <td>{{ member.company_name }}</td>
+            <td>{{ member.id_card }}</td>
+<!--            <td>{{ member.nationality }}</td>-->
+            <td>{{ member.begin_month }}</td>
+            <td>{{ member.end_month }}</td>
+<!--            <td>{{ member.salary }}</td>-->
+            <td>{{ member.is_valid }}</td>
+            <td>{{ member.person }}</td>
+            <th>
+                <a href="{{ url_for('member_update', member_id=member.member_id) }}" class="btn btn-success btn-sm" role="button">查看/修改</a>
+<!--                &nbsp;<a href="#" class="btn btn-success btn-sm" role="button">历史缴费</a>-->
+
+                <!--                <a href="#" class="btn btn-danger btn-sm" role="button">删除</a>-->
+            </th>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

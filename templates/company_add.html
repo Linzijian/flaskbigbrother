@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>新增公司信息</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+function validateForm(){
+var x=document.forms["myform"]["injury_ratio"].value;
+if (x=="" || isNaN(x)){
+  alert("工伤保险比例需填写数字");
+  return false;
+  }
+}
+</script>
+</head>
+<body>
+<p></p>
+<div class="container">
+    <h4>新增公司信息</h4>
+
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+         <div class = "alert alert-danger">
+            {{ message }}
+         </div>
+    {%- endfor %}
+    <p></p>
+    <form name="myform" action="{{ url_for('company_add') }}" method = "post" onsubmit="return validateForm()">
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">公司名称：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="name">
+            </div>
+<!--        </div>-->
+<!--        <div class="form-group row">-->
+            <label for="inputPassword" class="col-2 col-form-label">所属区域：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="position">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">社保编码：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="code">
+            </div>
+<!--        </div>-->
+<!--        <div class="form-group row">-->
+            <label for="inputPassword" class="col-2 col-form-label">市申报密码：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="sbpass">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">用工备案密码：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="bapass">
+            </div>
+<!--        </div>-->
+<!--        <div class="form-group row">-->
+            <label for="inputPassword" class="col-2 col-form-label">辽宁政务网用户名：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="zwwname">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">辽宁政务网密码：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="zwwpass">
+            </div>
+<!--        </div>-->
+<!--        <div class="form-group row">-->
+            <label for="inputPassword" class="col-2 col-form-label">税号：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="scode">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">工伤保险比例(%)：</label>
+            <div class="col-3">
+                <input value="0.6" type="text" class="form-control" id="inputPassword" name="injury_ratio">
+            </div>
+            <label for="inputPassword" class="col-2 col-form-label">是否正常申报：</label>
+            <div class="col-3">
+                <select class="form-control" id="sel1" name="is_valid">
+                    <option>是</option>
+                    <option>否</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword" class="col-2 col-form-label">提交人名称：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="person">
+            </div>
+        </div>
+        <button type="submit" class="btn btn-primary">提交</button>
+    </form>
+</div>
+
+</body>
+</html>

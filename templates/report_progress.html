@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>申报进度查询</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<p></p>
+<div class="container">
+    <h4>申报进度查询</h4>
+
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+    <div class = "alert alert-danger">
+        {{ message }}
+    </div>
+    {%- endfor %}
+    <form class="form-inline" action="{{ url_for('report_progress', name='all') }}" method = "post">
+        <label for="inputPassword2">当前月份： </label>
+        <input value="{{cur_month}}" type="month" class="form-control" id="inputPassword2" name="cur_month">
+        <label for="inputPassword2">&nbsp;&nbsp;&nbsp;&nbsp;公司名称：</label>
+        <input value="{{name}}" type="text" class="form-control" id="inputPassword2" placeholder="所有公司" name="name">
+        <button type="submit" class="btn btn-primary">查询</button>
+    </form>
+
+    <p></p>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>公司名称</th>
+<!--            <th>所属区</th>-->
+            <th>社保编号</th>
+<!--            <th>辽宁政务网用户名</th>-->
+            <th>税号</th>
+            <th>当月</th>
+            <th>上月</th>
+            <th>增加</th>
+            <th>减少</th>
+<!--            <th>是否确认</th>-->
+            <th>名单确认</th>
+            <th>可申报确认</th>
+            <th>申报确认</th>
+            <th>缴费确认</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for company in companys %}
+        <tr>
+            <td>{{ company.name }}</td>
+<!--            <td>{{ company.position }}</td>-->
+            <td>{{ company.code }}</td>
+<!--            <td>{{ company.zwwname }}</td>-->
+            <td>{{ company.scode }}</td>
+            <td>{{ m_change_data[company.name]["cur_month_cnt"] }}</td>
+            <td>{{ m_change_data[company.name]["last_month_cnt"] }}</td>
+            <td>{{ m_change_data[company.name]["cur_month_add"] }}</td>
+            <td>{{ m_change_data[company.name]["cur_month_remove"] }}</td>
+<!--            <td>否</td>-->
+            <th>
+                {% if m_change_data[company.name]['members_check']=="未开始" %}
+                <a href="#" class="btn btn-danger btn-sm" role="button">未开始</a>
+                {% elif m_change_data[company.name]['members_check']=="进行中" %}
+                <a href="{{ url_for('confirm_member', name=company.name, readonly='F', cur_month=cur_month) }}" class="btn btn-warning btn-sm" role="button">进行中</a>
+                {% else %}
+                <a href="{{ url_for('confirm_member', name=company.name, readonly='readonly', cur_month=cur_month) }}" class="btn btn-success btn-sm" role="button">已完成</a>
+                {% endif %}
+            </th>
+            <th>
+                {% if m_change_data[company.name]['reportable_check']=="未开始" %}
+                <a href="#" class="btn btn-danger btn-sm" role="button">未开始</a>
+                {% elif m_change_data[company.name]['reportable_check']=="进行中" %}
+                <a href="{{ url_for('reportable_check', name=company.name, readonly='F', cur_month=cur_month) }}" class="btn btn-warning btn-sm" role="button">进行中</a>
+                {% else %}
+                <a href="{{ url_for('reportable_check', name=company.name, readonly='readonly', cur_month=cur_month) }}" class="btn btn-success btn-sm" role="button">已完成</a>
+                {% endif %}
+            </th>
+            <th>
+                {% if m_change_data[company.name]['report_state']=="未开始" %}
+                <a href="#" class="btn btn-danger btn-sm" role="button">未开始</a>
+                {% elif m_change_data[company.name]['report_state']=="进行中" %}
+                <a href="{{ url_for('report_check', name=company.name, readonly='F', cur_month=cur_month) }}" class="btn btn-warning btn-sm" role="button">进行中</a>
+                {% else %}
+                <a href="{{ url_for('report_check', name=company.name, readonly='readonly', cur_month=cur_month) }}" class="btn btn-success btn-sm" role="button">已完成</a>
+                {% endif %}
+            </th>
+            <th>
+                {% if m_change_data[company.name]['pay_state']=="未开始" %}
+                <a href="#" class="btn btn-danger btn-sm" role="button">未开始</a>
+                {% elif m_change_data[company.name]['pay_state']=="进行中" %}
+                <a href="{{ url_for('pay_check', name=company.name, readonly='F', cur_month=cur_month) }}" class="btn btn-warning btn-sm" role="button">进行中</a>
+                {% else %}
+                <a href="{{ url_for('pay_check', name=company.name, readonly='readonly', cur_month=cur_month) }}" class="btn btn-success btn-sm" role="button">已完成</a>
+                {% endif %}
+            </th>
+        </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>

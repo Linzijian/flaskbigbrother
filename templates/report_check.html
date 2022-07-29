@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>申报确认</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+function validateForm(){
+    var real_fee=document.forms["myform"]["real_fee"].value;
+    if (real_fee=="" || isNaN(real_fee)){
+        alert("“税务金额”字段需填写数字");
+        return false;
+    }
+
+    var report_state=document.forms["myform"]["report_state"].value;
+    var injury=document.forms["myform"]["injury"].value;
+    var endowment=document.forms["myform"]["endowment"].value;
+    var unemployment=document.forms["myform"]["unemployment"].value;
+    var medical=document.forms["myform"]["medical"].value;
+    var birth=document.forms["myform"]["birth"].value;
+    if (report_state=="已完成" && (injury!="完成" || endowment!="完成" || unemployment!="完成" || medical!="完成" || birth!="完成")){
+        alert("五险申报状态都为“完成”后，“申报确认全部环节是否完成”字段才能设置为“已完成”!");
+        return false;
+    }
+
+    var predict_fee=document.forms["myform"]["predict_fee"].value;
+    var reason_text=document.forms["myform"]["reason_text"].value;
+    if (report_state=="已完成" && predict_fee != real_fee && reason_text == ""){
+        alert("参考金额不等于税务金额，必须在备注中填写原因！");
+        return false;
+    }
+}
+</script>
+</head>
+<body>
+<p></p>
+<div class="container">
+    <h4>申报确认</h4>
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+    <div class = "alert alert-danger">
+        {{ message }}
+    </div>
+    {%- endfor %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>月份</th>
+            <th>公司名称</th>
+            <th>社保编号</th>
+            <th>辽宁政务网用户名</th>
+            <th>税号</th>
+<!--            <th>月份</th>-->
+            <th>当月</th>
+            <th>上月</th>
+            <th>增加</th>
+            <th>减少</th>
+            <th>工伤比例(%)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="table-danger">
+            <td>{{ report_data.cur_month }}</td>
+            <td>{{ report_data.company_name }}</td>
+            <td>{{ company[0].code }}</td>
+            <td>{{ company[0].zwwname }}</td>
+            <td>{{ company[0].scode }}</td>
+            <td>{{ report_data.cur_month_cnt }}</td>
+            <td>{{ report_data.last_month_cnt }}</td>
+            <td>{{ report_data.cur_month_add }}</td>
+            <td>{{ report_data.cur_month_remove }}</td>
+            <td>{{ company[0].injury_ratio }}</td>
+        </tr>
+        </tbody>
+    </table>
+    <form name="myform" onsubmit="return validateForm()"
+          action="{{ url_for('report_check', name=report_data.company_name, readonly='F', cur_month=report_data.cur_month) }}" method = "post">
+    <table class="table table-hover table-striped">
+        <thead>
+        <tr>
+            <th></th>
+            <th>基数</th>
+            <th>单位承担</th>
+            <th>个人承担</th>
+            <th>申报状态</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>工伤</td>
+            <td>{{ dic_company["injury_base"] }}</td>
+            <td>{{ dic_company["injury_c"] }}</td>
+            <td>{{ dic_company["injury_i"] }}</td>
+            <td>
+                <select class="form-control" name="injury">
+                    <option>{{report_data.injury}}</option>
+                    <option>重新生产账单</option>
+                    <option>申报审核</option>
+                    <option>税务同步中</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>养老</td>
+            <td>{{ dic_company["endowment_base"] }}</td>
+            <td>{{ dic_company["endowment_c"] }}</td>
+            <td>{{ dic_company["endowment_i"] }}</td>
+            <td>
+                <select class="form-control" name="endowment">
+                    <option>{{report_data.endowment}}</option>
+                    <option>审核</option>
+                    <option>税务同步中</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>失业</td>
+            <td>{{ dic_company["unemployment_base"] }}</td>
+            <td>{{ dic_company["unemployment_c"] }}</td>
+            <td>{{ dic_company["unemployment_i"] }}</td>
+            <td>
+                <select class="form-control" name="unemployment">
+                    <option>{{report_data.unemployment}}</option>
+                    <option>审核</option>
+                    <option>税务同步中</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>医疗</td>
+            <td>{{ dic_company["medical_base"] }}</td>
+            <td>{{ dic_company["medical_c"] }}</td>
+            <td>{{ dic_company["medical_i"] }}</td>
+            <td>
+                <select class="form-control" name="medical">
+                    <option>{{report_data.medical}}</option>
+                    <option>税务同步中</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </td>
+        </tr>
+        <tr>
+            <td>生育</td>
+            <td>{{ dic_company["birth_base"] }}</td>
+            <td>{{ dic_company["birth_c"] }}</td>
+            <td>{{ dic_company["birth_i"] }}</td>
+            <td>
+                <select class="form-control" name="birth">
+                    <option>{{report_data.birth}}</option>
+                    <option>税务同步中</option>
+                    <option>其他</option>
+                    <option>完成</option>
+                </select>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+        <div class="form-group row">
+            <label for="inputPassword" class="col-1 col-form-label">大病人数</label>
+            <div class="col-2">
+                <input value="{{report_data.ill_cnt}}" required="required" type="number" class="form-control" name="ill_cnt">
+            </div>
+            <label for="inputPassword" class="col-1 col-form-label">参考金额</label>
+            <div class="col-2">
+                <input value="{{dic_company['predict_fee']}}" readonly="readonly" type="text" class="form-control" name="predict_fee">
+            </div>
+            <label for="inputPassword" class="col-1 col-form-label">税务金额</label>
+            <div class="col-2">
+                <input value="{{report_data.real_fee}}" type="text" class="form-control" name="real_fee">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword2" class="col-1 col-form-label">备注： </label>
+            <div class="col-5">
+                <input value="{{report_data.reason_text}}" type="text" class="form-control" placeholder="如参考金额不等于税务金额，则必须填写原因" name="reason_text">
+            </div>
+            <label for="inputPassword2" class="col-1 col-form-label">确认人员</label>
+            <div class="col-2">
+                <input value="{{report_data.report_person}}" required="required" type="text" class="form-control" placeholder="张铁牛" name="report_person">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword2" class="col-3 col-form-label">申报确认全部环节是否完成： </label>
+            <div class="col-2">
+                <select class="form-control" name="report_state">
+                    <option>{{report_data.report_state}}</option>
+                    <option>未完成</option>
+                    <option>已完成</option>
+                </select>
+            </div>
+            {% if readonly != "readonly" %}
+            <button type="submit" class="btn btn-primary">保存</button>
+            {% endif %}
+        </div>
+    </form>
+
+</div>
+
+</body>
+</html>

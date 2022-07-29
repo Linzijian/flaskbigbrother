@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>缴费确认</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+<script>
+function validateForm(){
+    var pay_state=document.forms["myform"]["pay_state"].value;
+    var pay_type=document.forms["myform"]["pay_type"].value;
+    var pay_list_print=document.forms["myform"]["pay_list_print"].value;
+    if (pay_state=="已完成" && (pay_type=="" || pay_list_print!="已完成")){
+        alert("“缴款方式”不为空且“打印缴单”字段设置为“已完成”，“缴费状态”字段才能设置为“已完成”!");
+        return false;
+    }
+}
+</script>
+</head>
+<body>
+<p></p>
+<div class="container">
+    <h4>缴费确认</h4>
+    {%- for category, message in get_flashed_messages(with_categories = true) %}
+    <div class = "alert alert-danger">
+        {{ message }}
+    </div>
+    {%- endfor %}
+    <table class="table">
+        <thead>
+        <tr>
+            <th>月份</th>
+            <th>公司名称</th>
+            <th>社保编号</th>
+            <th>辽宁政务网用户名</th>
+            <th>税号</th>
+<!--            <th>月份</th>-->
+            <th>当月</th>
+            <th>上月</th>
+            <th>增加</th>
+            <th>减少</th>
+            <th>工伤比例(%)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="table-danger">
+            <td>{{ report_data.cur_month }}</td>
+            <td>{{ report_data.company_name }}</td>
+            <td>{{ company[0].code }}</td>
+            <td>{{ company[0].zwwname }}</td>
+            <td>{{ company[0].scode }}</td>
+            <td>{{ report_data.cur_month_cnt }}</td>
+            <td>{{ report_data.last_month_cnt }}</td>
+            <td>{{ report_data.cur_month_add }}</td>
+            <td>{{ report_data.cur_month_remove }}</td>
+            <td>{{ company[0].injury_ratio }}</td>
+        </tr>
+        </tbody>
+    </table>
+
+    <table class="table table-hover table-striped">
+        <thead>
+        <tr>
+            <th></th>
+            <th>基数</th>
+            <th>单位承担</th>
+            <th>个人承担</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>工伤</td>
+            <td>{{ dic_company["injury_base"] }}</td>
+            <td>{{ dic_company["injury_c"] }}</td>
+            <td>{{ dic_company["injury_i"] }}</td>
+        </tr>
+        <tr>
+            <td>养老</td>
+            <td>{{ dic_company["endowment_base"] }}</td>
+            <td>{{ dic_company["endowment_c"] }}</td>
+            <td>{{ dic_company["endowment_i"] }}</td>
+        </tr>
+        <tr>
+            <td>失业</td>
+            <td>{{ dic_company["unemployment_base"] }}</td>
+            <td>{{ dic_company["unemployment_c"] }}</td>
+            <td>{{ dic_company["unemployment_i"] }}</td>
+        </tr>
+        <tr>
+            <td>医疗</td>
+            <td>{{ dic_company["medical_base"] }}</td>
+            <td>{{ dic_company["medical_c"] }}</td>
+            <td>{{ dic_company["medical_i"] }}</td>
+        </tr>
+        <tr>
+            <td>生育</td>
+            <td>{{ dic_company["birth_base"] }}</td>
+            <td>{{ dic_company["birth_c"] }}</td>
+            <td>{{ dic_company["birth_i"] }}</td>
+        </tr>
+        </tbody>
+    </table>
+    <textarea class="form-control" rows="8" id="comment" readonly="readonly">{{text}}</textarea>
+    <br>
+    <form name="myform" onsubmit="return validateForm()"
+          action="{{ url_for('pay_check', name=report_data.company_name, readonly='F', cur_month=report_data.cur_month) }}" method = "post">
+        <div class="form-group row">
+            <label for="inputPassword" class="col-1 col-form-label">大病人数</label>
+            <div class="col-2">
+                <input value="{{report_data.ill_cnt}}" readonly="readonly" type="number" class="form-control" name="ill_cnt">
+            </div>
+            <label for="inputPassword" class="col-1 col-form-label">参考金额</label>
+            <div class="col-2">
+                <input value="{{dic_company['predict_fee']}}" readonly="readonly" type="text" class="form-control" name="predict_fee">
+            </div>
+            <label for="inputPassword" class="col-1 col-form-label">缴费金额</label>
+            <div class="col-2">
+                <input value="{{report_data.real_fee}}" type="text" readonly="readonly" class="form-control" name="real_fee">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword2" class="col-1 col-form-label">备注： </label>
+            <div class="col-8">
+                <input value="{{report_data.reason_text}}" type="text" readonly="readonly" class="form-control" placeholder="如参考金额不等于税务金额，则必须填写原因" name="reason_text">
+            </div>
+
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword2" class="col-1 col-form-label">缴款方式</label>
+            <div class="col-2">
+                <select class="form-control" name="pay_type">
+                    <option>{{report_data.pay_type}}</option>
+                    <option>划款</option>
+                    <option>扫码</option>
+                </select>
+            </div>
+            <label for="inputPassword2" class="col-1 col-form-label">打印缴单</label>
+            <div class="col-2">
+                <select class="form-control" name="pay_list_print">
+                    <option>{{report_data.pay_list_print}}</option>
+                    <option>未完成</option>
+                    <option>已完成</option>
+                </select>
+            </div>
+            <label for="inputPassword2" class="col-1 col-form-label">缴费状态</label>
+            <div class="col-2">
+                <select class="form-control" name="pay_state" >
+                    <option>{{report_data.pay_state}}</option>
+                    <option>未完成</option>
+                    <option>已完成</option>
+                </select>
+            </div>
+
+        </div>
+        <div class="form-group row">
+            <label for="inputPassword2" class="col-1 col-form-label">确认人员</label>
+            <div class="col-2">
+                <input value="{{report_data.pay_check_person}}" required="required" type="text" class="form-control" placeholder="张铁牛" name="pay_check_person">
+            </div>
+            {% if readonly != "readonly" %}
+            <button type="submit" class="btn btn-primary">保存</button>
+            {% endif %}
+        </div>
+    </form>
+
+</div>
+
+</body>
+</html>
