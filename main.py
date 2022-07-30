@@ -1,5 +1,6 @@
 from flask import Flask, request, flash, url_for, redirect, render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import and_
 from company import Companys
 from member import Members
 from report import Reports
@@ -479,7 +480,7 @@ def reportable_check(name, readonly, cur_month):
             all_valid = False
     if request.method == 'POST':
         data = {"reportable_check_person": request.form['name'], "reportable_check": "已完成"}
-        db.session.query(Reports).filter(Reports.company_name == name and Reports.cur_month == cur_month).update(data)
+        db.session.query(Reports).filter(and_(Reports.company_name == name, Reports.cur_month == cur_month)).update(data)
         db.session.commit()
 
         flash(name + '， 已完成可申报确认！')
@@ -510,14 +511,14 @@ def report_check(name, readonly, cur_month):
                 "reason_text": request.form['reason_text'],
                 "report_state": request.form['report_state'],
                 "report_person": request.form['report_person']}
-        db.session.query(Reports).filter(Reports.company_name == name and Reports.cur_month == cur_month).update(data)
+        db.session.query(Reports).filter(and_(Reports.company_name == name, Reports.cur_month == cur_month)).update(data)
         db.session.commit()
         if request.form['report_state'] == "已完成":
             flash(name + '，已完成申报确认！')
             return redirect(url_for('report_progress', name=name))
         else:
             flash('修改完成！')
-            return redirect(url_for('report_check', name=name))
+            return redirect(url_for('report_check', name=name, readonly=readonly, cur_month=cur_month))
     return render_template('report_check.html',
                            report_data=report_data,
                            company=Companys.query.filter_by(name=name).all(),
@@ -533,7 +534,7 @@ def pay_check(name, readonly, cur_month):
                 "pay_list_print": request.form['pay_list_print'],
                 "pay_state": request.form['pay_state'],
                 "pay_check_person": request.form['pay_check_person']}
-        db.session.query(Reports).filter(Reports.company_name == name and Reports.cur_month == cur_month).update(data)
+        db.session.query(Reports).filter(and_(Reports.company_name == name, Reports.cur_month == cur_month)).update(data)
         db.session.commit()
         if request.form['pay_state'] == "已完成":
             flash(name + '，已完成缴费确认！')
@@ -549,6 +550,13 @@ def pay_check(name, readonly, cur_month):
                            readonly=readonly)
 
 
+@app.route('/company_pay_history/<company_name>', methods=['GET', 'POST'])
+def company_pay_history(company_name):
+    return render_template('company_pay_history.html',
+                           company_name=company_name,
+                           reports=Reports.query.filter_by(company_name=company_name).all())
+
+
 if __name__ == "__main__":
     companys = Companys("1","1","1","1","1","1","1","1", 0.6, "1","1")
     members = Members("1", "1", "1", "1", "1", "1", "1", 3000,
@@ -557,4 +565,4 @@ if __name__ == "__main__":
     reports = Reports("1","1","1","1","1", 0, 0, 0, 0,"1","1")
     db.create_all()
     # app.run(debug=True, port=80)
-    app.run(debug=True, port=80, host="0.0.0.0")
+    app.run(port=8000, host="0.0.0.0")

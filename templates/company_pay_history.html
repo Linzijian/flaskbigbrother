@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>公司历史缴费信息</title>
+    <link rel="stylesheet" href="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/css/bootstrap.min.css">
+    <script src="https://cdn.staticfile.org/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
+    <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
+
+</head>
+<body>
+<p></p>
+<div class="container">
+    <h4>{{ company_name }}&nbsp;公司历史缴费信息</h4>
+    <br>
+    <table class="table table-hover">
+        <thead>
+        <tr>
+            <th>月份</th>
+            <th>当月人数</th>
+            <th>上月人数</th>
+            <th>当月新增</th>
+            <th>当月减少</th>
+            <th>缴费金额</th>
+            <th>是否完成缴费</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for report in reports %}
+            <tr>
+                <td>{{ report.cur_month }}</td>
+                <td>{{ report.cur_month_cnt }}</td>
+                <td>{{ report.last_month_cnt }}</td>
+                <td>{{ report.cur_month_add }}</td>
+                <td>{{ report.cur_month_remove }}</td>
+                <td>{{ report.real_fee }}</td>
+                <td>{{ report.pay_state }}</td>
+            </tr>
+        {% endfor %}
+
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
