@@ -30,12 +30,12 @@
         <thead>
         <tr>
             <th>公司名称</th>
-            <th>所属区</th>
+{#            <th>所属区</th>#}
             <th>社保编号</th>
 <!--            <th>市申报密码</th>-->
 <!--            <th>用工备案密码</th>-->
             <th>辽宁政务网用户名</th>
-            <th>辽宁政务网密码</th>
+            <th>税号</th>
 <!--            <th>税号</th>-->
 <!--            <th>工伤保险比例(%)</th>-->
             <th>是否正常申报</th>
@@ -47,13 +47,10 @@
         {% for company in companys %}
         <tr>
             <td>{{ company.name }}</td>
-            <td>{{ company.position }}</td>
+            <!--<td>{{ company.position }}</td>-->
             <td>{{ company.code }}</td>
-<!--            <td>{{ company.sbpass }}</td>-->
-<!--            <td>{{ company.bapass }}</td>-->
             <td>{{ company.zwwname }}</td>
-            <td>{{ company.zwwpass }}</td>
-<!--            <td>{{ company.scode }}</td>-->
+            <td>{{ company.scode }}</td>
 <!--            <td>{{ company.injury_ratio }}</td>-->
             <td>{{ company.is_valid }}</td>
             <td>{{ company.person }}</td>

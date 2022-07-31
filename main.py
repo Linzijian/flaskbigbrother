@@ -1,9 +1,10 @@
-from flask import Flask, request, flash, url_for, redirect, render_template
+from flask import Flask, request, flash, url_for, redirect, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
 from company import Companys
 from member import Members
 from report import Reports
+from user import Users
 import datetime
 from dateutil.relativedelta import relativedelta
 
@@ -178,6 +179,8 @@ def get_cur_month_change_data_dic(cur_month):
 
 @app.route('/insurance_calculator')
 def insurance_calculator():
+    # if 'username' not in session:
+    #     return redirect(url_for('home'))
     m_base = {"injury_base": 3284, "injury_c": 0.6, "injury_i": 0,
               "endowment_base": 3284, "endowment_c": 16, "endowment_i": 8,
               "unemployment_base": 3284, "unemployment_c": 0.5, "unemployment_i": 0.5,
@@ -199,25 +202,43 @@ def insurance_calculator():
     return render_template('insurance_calculator.html', m_base=m_base)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def home():
+    if 'username' not in session:
+        return render_template('login.html')
     return render_template('home.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    text = ""
+    if request.method == 'POST':
+        user = Users.query.filter_by(name=request.form['name'], password=request.form['password']).all()
+        if len(user) == 1:
+            session['username'] = request.form['name']
+            return redirect(url_for('home'))
+        text = 'error'
+    return render_template('login.html', text=text)
+
+
+@app.route('/logout')
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('home'))
 
 
 @app.route('/company_update/<name>', methods=['GET', 'POST'])
 def company_update(name):
     if request.method == 'POST':
-        # print("@@@ get post")
         if not request.form['name'] or not request.form['position'] or not request.form['code']\
-                or not request.form['sbpass'] or not request.form['bapass'] or not request.form['zwwname']\
-                or not request.form['zwwpass'] or not request.form['scode'] or not request.form['person']\
-                or not request.form['is_valid'] or not request.form['injury_ratio']:
+                or not request.form['zwwname'] or not request.form['scode'] or not request.form['person']\
+                or not request.form['is_valid'] or not request.form['injury_ratio'] or not request.form['short_name']:
             flash('输入有误！', 'error')
         else:
             data = {"name":request.form['name'], "position":request.form['position'], "code":request.form['code'],
-                    "sbpass":request.form['sbpass'], "bapass":request.form['bapass'], "zwwname":request.form['zwwname'],
-                    "zwwpass":request.form['zwwpass'], "scode":request.form['scode'], "injury_ratio":request.form['injury_ratio'],
-                    "person":request.form['person'], "is_valid":request.form['is_valid']}
+                    "zwwname":request.form['zwwname'], "scode":request.form['scode'], "injury_ratio":request.form['injury_ratio'],
+                    "person": session['username'], "is_valid":request.form['is_valid'], "pay_type":request.form['pay_type'],
+                    "short_name":request.form['short_name']}
             db.session.query(Companys).filter(Companys.name == request.form['name']).update(data)
             db.session.commit()
             flash('修改成功！')
@@ -242,16 +263,15 @@ def company_query():
 def company_add():
     if request.method == 'POST':
         if not request.form['name'] or not request.form['position'] or not request.form['code']\
-                or not request.form['sbpass'] or not request.form['bapass'] or not request.form['zwwname']\
-                or not request.form['zwwpass'] or not request.form['scode'] or not request.form['person']\
-                or not request.form['is_valid'] or not request.form['injury_ratio']:
+                or not request.form['zwwname'] or not request.form['scode']\
+                or not request.form['is_valid'] or not request.form['injury_ratio']\
+                or not request.form['short_name']:
             flash('输入有误！', 'error')
         else:
             company = Companys(request.form['name'], request.form['position'], request.form['code'],
-                               request.form['sbpass'], request.form['bapass'], request.form['zwwname'],
-                               request.form['zwwpass'], request.form['scode'], request.form['injury_ratio'],
-                               request.form['person'], request.form['is_valid'])
-
+                               request.form['zwwname'], request.form['scode'], request.form['injury_ratio'],
+                               session['username'], request.form['is_valid'], request.form['pay_type'],
+                               request.form['short_name'])
             db.session.add(company)
             db.session.commit()
             flash('新增成功！')
@@ -264,7 +284,7 @@ def member_update(member_id):
     if request.method == 'POST':
         if not request.form['company_name'] or not request.form['name'] or not request.form['id_card']\
                 or not request.form['address'] or not request.form['nationality'] or not request.form['begin_month']\
-                or not request.form['is_valid'] or not request.form['person']:
+                or not request.form['is_valid']:
             flash('输入有误！', 'error')
         else:
             data = {"company_name":request.form['company_name'], "name":request.form['name'], "id_card":request.form['id_card'],
@@ -273,7 +293,7 @@ def member_update(member_id):
                     "endowment": request.form['endowment'], "unemployment":request.form['unemployment'], "medical":request.form['medical'],
                     "birth": request.form['birth'], "injury_check":request.form['injury_check'], "endowment_check":request.form['endowment_check'],
                     "unemployment_check": request.form['unemployment_check'], "medical_check":request.form['medical_check'], "birth_check":request.form['birth_check'],
-                    "is_valid":request.form['is_valid'], "person":request.form['person']}
+                    "is_valid":request.form['is_valid'], "person": session['username']}
             db.session.query(Members).filter(Members.member_id == request.form['member_id']).update(data)
             db.session.commit()
             flash('修改成功！')
@@ -306,7 +326,9 @@ def member_query(company_name):
     if company_name == "all":
         return render_template('member_query.html', company_name="", name="", members=Members.query.all(), cur_month=get_cur_month())
     else:
-        return render_template('member_query.html', name="", company_name=company_name, members=Members.query.filter_by(company_name=company_name).all(), cur_month=get_cur_month())
+        return render_template('member_query.html', name="", company_name=company_name,
+                               members=Members.query.filter_by(company_name=company_name).order_by(Members.begin_month.asc()).all(),
+                               cur_month=get_cur_month())
 
 
 @app.route('/member_add', methods=['GET', 'POST'])
@@ -314,7 +336,7 @@ def member_add():  # company_name, name, id_card, address, nationality, begin_mo
     if request.method == 'POST':
         if not request.form['company_name'] or not request.form['name'] or not request.form['id_card']\
                 or not request.form['address'] or not request.form['nationality'] or not request.form['begin_month']\
-                or not request.form['is_valid'] or not request.form['person'] or not request.form['salary']:
+                or not request.form['is_valid'] or not request.form['salary']:
             flash('输入有误！', 'error')
         else:
             member = Members(request.form['company_name'], request.form['name'], request.form['id_card'],
@@ -326,7 +348,7 @@ def member_add():  # company_name, name, id_card, address, nationality, begin_mo
                              request.form['injury_check'], request.form['endowment_check'],
                              request.form['unemployment_check'],request.form['medical_check'],
                              request.form['birth_check'],
-                             request.form['is_valid'], request.form['person'])
+                             request.form['is_valid'], session['username'])
             db.session.add(member)
             db.session.commit()
             flash('新增成功！')
@@ -355,7 +377,7 @@ def report_progress(name):
         if report.report_state == "已完成":
             m_change_data[report.company_name]["report_state"] = "已完成"
             m_change_data[report.company_name]["pay_state"] = "进行中"
-        if report.pay_state == "已完成":
+        if report.pay_state == "已完成" and report.pay_list_print == "已完成":
             m_change_data[report.company_name]["pay_state"] = "已完成"
     if request.method == 'POST':
         if cur_month <= request.form['cur_month']:
@@ -376,15 +398,15 @@ def report_progress(name):
                 if report.report_state == "已完成":
                     m_change_data[report.company_name]["report_state"] = "已完成"
                     m_change_data[report.company_name]["pay_state"] = "进行中"
-                if report.pay_state == "已完成":
+                if report.pay_state == "已完成" and report.pay_list_print == "已完成":
                     m_change_data[report.company_name]["pay_state"] = "已完成"
             companys = Companys.query.filter_by(name=request.form['name'], is_valid="是").all()
             if request.form['name'] == "":
                 companys = Companys.query.all()
             return render_template('report_progress.html', name=request.form['name'],
-                                       companys=companys,
-                                       cur_month=request.form['cur_month'],
-                                       m_change_data=m_change_data)
+                                   companys=companys,
+                                   cur_month=request.form['cur_month'],
+                                   m_change_data=m_change_data)
         else:
             m_change_data = {}
             reports = Reports.query.filter_by(cur_month=request.form['cur_month']).all()
@@ -400,7 +422,7 @@ def report_progress(name):
                 if report.report_state == "已完成":
                     m_change_data[report.company_name]["report_state"] = "已完成"
                     m_change_data[report.company_name]["pay_state"] = "进行中"
-                if report.pay_state == "已完成":
+                if report.pay_state == "已完成" and report.pay_list_print == "已完成":
                     m_change_data[report.company_name]["pay_state"] = "已完成"
                 m_change_data["last_month_cnt"] = report.last_month_cnt
                 m_change_data["cur_month_cnt"] = report.cur_month_cnt
@@ -438,7 +460,7 @@ def confirm_member(name, readonly, cur_month):
                     "cur_month_add": m_change_data[name]["cur_month_add"],
                     "cur_month_remove": m_change_data[name]["cur_month_remove"],
                     "description": m_change_data[name]["description"]}
-    members = Members.query.filter_by(company_name=name).all()
+    members = Members.query.filter_by(company_name=name).order_by(Members.begin_month.asc()).all()
     members_filter = []
     for member in members:
         if member.begin_month <= cur_month and ( member.end_month == "" or cur_month <= member.end_month):
@@ -455,6 +477,8 @@ def confirm_member(name, readonly, cur_month):
         flash(name + '， 已完成名单确认！')
         return redirect(url_for('report_progress', name=name, readonly=readonly))
     members_check_person = ""
+    if 'username' in session:
+        members_check_person = session['username']
     report_data = Reports.query.filter_by(company_name=name, cur_month=cur_month).all()
     if len(report_data) > 0:
         members_check_person = report_data[0].members_check_person
@@ -485,6 +509,8 @@ def reportable_check(name, readonly, cur_month):
 
         flash(name + '， 已完成可申报确认！')
         return redirect(url_for('report_progress', name=name))
+    if report_data.reportable_check_person == "":
+        report_data.reportable_check_person = session['username']
     return render_template('reportable_check.html',
                            members=members_filter,
                            report_data=report_data,
@@ -519,6 +545,8 @@ def report_check(name, readonly, cur_month):
         else:
             flash('修改完成！')
             return redirect(url_for('report_check', name=name, readonly=readonly, cur_month=cur_month))
+    if report_data.report_person == "":
+        report_data.report_person = session['username']
     return render_template('report_check.html',
                            report_data=report_data,
                            company=Companys.query.filter_by(name=name).all(),
@@ -542,9 +570,14 @@ def pay_check(name, readonly, cur_month):
         else:
             flash('修改完成！')
             return redirect(url_for('pay_check', name=name, readonly=readonly, cur_month=cur_month))
+    if report_data.pay_check_person == "":
+        report_data.pay_check_person = session["username"]
+    company = Companys.query.filter_by(name=name).all()
+    if report_data.pay_type == "":
+        report_data.pay_type = company[0].pay_type
     return render_template('pay_check.html',
                            report_data=report_data,
-                           company=Companys.query.filter_by(name=name).all(),
+                           company=company,
                            dic_company=insurance_calculator_company(name, cur_month),
                            text=insurance_calculator_members(name, cur_month),
                            readonly=readonly)
@@ -558,11 +591,11 @@ def company_pay_history(company_name):
 
 
 if __name__ == "__main__":
-    companys = Companys("1","1","1","1","1","1","1","1", 0.6, "1","1")
+    companys = Companys("1", "1", "1", "1", "1", 0.6, "1", "1", "1", "1")
     members = Members("1", "1", "1", "1", "1", "1", "1", 3000,
                       "1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
                       "1", "1")
-    reports = Reports("1","1","1","1","1", 0, 0, 0, 0,"1","1")
+    reports = Reports("1", "1", "1", "1", "1", 0, 0, 0, 0, "1", "1")
     db.create_all()
-    # app.run(debug=True, port=80)
-    app.run(port=8000, host="0.0.0.0")
+    app.run(debug=True, port=80, host="0.0.0.0")
+    # app.run(port=80, host="0.0.0.0")

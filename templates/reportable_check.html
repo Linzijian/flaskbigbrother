@@ -23,10 +23,10 @@
             <th>辽宁政务网用户名</th>
             <th>税号</th>
 <!--            <th>月份</th>-->
-            <th>当月</th>
             <th>上月</th>
             <th>增加</th>
             <th>减少</th>
+            <th>当月</th>
         </tr>
         </thead>
         <tbody>
@@ -36,10 +36,10 @@
             <td>{{ company[0].code }}</td>
             <td>{{ company[0].zwwname }}</td>
             <td>{{ company[0].scode }}</td>
-            <td>{{ report_data.cur_month_cnt }}</td>
             <td>{{ report_data.last_month_cnt }}</td>
             <td>{{ report_data.cur_month_add }}</td>
             <td>{{ report_data.cur_month_remove }}</td>
+            <td>{{ report_data.cur_month_cnt }}</td>
         </tr>
         </tbody>
     </table>
@@ -109,15 +109,15 @@
     <form name="myform" class="form-inline"
           action="{{ url_for('reportable_check', name=report_data.company_name, readonly='F', cur_month=report_data.cur_month) }}" method = "post">
         <label for="inputPassword2">确认人员： </label>
-        <input value="{{ report_data.reportable_check_person }}" required="required" type="text" class="form-control" placeholder="张铁牛" name="name">
+        <input readonly="readonly" value="{{ report_data.reportable_check_person }}" required="required" type="text" class="form-control" placeholder="张铁牛" name="name">
         {% if readonly != "readonly" %}
         <button type="submit" class="btn btn-primary">确认该公司可申报</button>
         {% endif %}
+        &nbsp;&nbsp;<input type="button" class="btn btn-primary" value="返回" onclick="javascript:history.back();">
     </form>
     {% else %}
     <button type="submit" class="btn btn-secondary">需要所有人员的五险均系统生效完成后才可确认</button>
     {% endif %}
-
 </div>
 
 </body>

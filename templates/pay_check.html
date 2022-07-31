@@ -37,10 +37,10 @@ function validateForm(){
             <th>辽宁政务网用户名</th>
             <th>税号</th>
 <!--            <th>月份</th>-->
-            <th>当月</th>
             <th>上月</th>
             <th>增加</th>
             <th>减少</th>
+            <th>当月</th>
             <th>工伤比例(%)</th>
         </tr>
         </thead>
@@ -51,10 +51,10 @@ function validateForm(){
             <td>{{ company[0].code }}</td>
             <td>{{ company[0].zwwname }}</td>
             <td>{{ company[0].scode }}</td>
-            <td>{{ report_data.cur_month_cnt }}</td>
             <td>{{ report_data.last_month_cnt }}</td>
             <td>{{ report_data.cur_month_add }}</td>
             <td>{{ report_data.cur_month_remove }}</td>
+            <td>{{ report_data.cur_month_cnt }}</td>
             <td>{{ company[0].injury_ratio }}</td>
         </tr>
         </tbody>
@@ -102,9 +102,9 @@ function validateForm(){
         </tr>
         </tbody>
     </table>
-    <textarea class="form-control" rows="8" id="comment" readonly="readonly">{{text}}</textarea>
+    <textarea class="form-control" rows="4" id="comment" readonly="readonly">{{text}}</textarea>
     <br>
-    <form name="myform" onsubmit="return validateForm()"
+    <form name="myform"
           action="{{ url_for('pay_check', name=report_data.company_name, readonly='F', cur_month=report_data.cur_month) }}" method = "post">
         <div class="form-group row">
             <label for="inputPassword" class="col-1 col-form-label">大病人数</label>
@@ -132,8 +132,14 @@ function validateForm(){
             <div class="col-2">
                 <select class="form-control" name="pay_type">
                     <option>{{report_data.pay_type}}</option>
-                    <option>划款</option>
-                    <option>扫码</option>
+                </select>
+            </div>
+            <label for="inputPassword2" class="col-1 col-form-label">是否缴费</label>
+            <div class="col-2">
+                <select class="form-control" name="pay_state" >
+                    <option>{{report_data.pay_state}}</option>
+                    <option>未完成</option>
+                    <option>已完成</option>
                 </select>
             </div>
             <label for="inputPassword2" class="col-1 col-form-label">打印缴单</label>
@@ -144,24 +150,18 @@ function validateForm(){
                     <option>已完成</option>
                 </select>
             </div>
-            <label for="inputPassword2" class="col-1 col-form-label">缴费状态</label>
-            <div class="col-2">
-                <select class="form-control" name="pay_state" >
-                    <option>{{report_data.pay_state}}</option>
-                    <option>未完成</option>
-                    <option>已完成</option>
-                </select>
-            </div>
+
 
         </div>
         <div class="form-group row">
             <label for="inputPassword2" class="col-1 col-form-label">确认人员</label>
             <div class="col-2">
-                <input value="{{report_data.pay_check_person}}" required="required" type="text" class="form-control" placeholder="张铁牛" name="pay_check_person">
+                <input readonly="readonly" value="{{report_data.pay_check_person}}" required="required" type="text" class="form-control" placeholder="张铁牛" name="pay_check_person">
             </div>
             {% if readonly != "readonly" %}
             <button type="submit" class="btn btn-primary">保存</button>
             {% endif %}
+            &nbsp;&nbsp;<input type="button" class="btn btn-primary" value="返回" onclick="javascript:history.back();">
         </div>
     </form>
 

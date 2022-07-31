@@ -13,25 +13,23 @@ class Companys(db.Model):
     name = db.Column(db.String(200))
     position = db.Column(db.String(200))
     code = db.Column(db.String(200))
-    sbpass = db.Column(db.String(200))
-    bapass = db.Column(db.String(200))
     zwwname = db.Column(db.String(200))
-    zwwpass = db.Column(db.String(200))
     scode = db.Column(db.String(200))
     injury_ratio = db.Column(db.Float)
     person = db.Column(db.String(200))
     is_valid = db.Column(db.String(200))
+    pay_type = db.Column(db.String(200))
+    short_name = db.Column(db.String(200))
 
-    def __init__(self, name, position, code, sbpass, bapass, zwwname, zwwpass, scode, injury_ratio, person, is_valid):
+    def __init__(self, name, position, code, zwwname, scode, injury_ratio, person, is_valid, pay_type, short_name):
         self.name = name
         self.position = position
         self.code = code
-        self.sbpass = sbpass
-        self.bapass = bapass
         self.zwwname = zwwname
-        self.zwwpass = zwwpass
         self.scode = scode
         self.injury_ratio = injury_ratio
         self.person = person
         self.is_valid = is_valid
+        self.pay_type = pay_type
+        self.short_name = short_name
         db.create_all()

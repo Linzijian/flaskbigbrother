@@ -53,10 +53,10 @@ function validateForm(){
             <th>辽宁政务网用户名</th>
             <th>税号</th>
 <!--            <th>月份</th>-->
-            <th>当月</th>
             <th>上月</th>
             <th>增加</th>
             <th>减少</th>
+            <th>当月</th>
             <th>工伤比例(%)</th>
         </tr>
         </thead>
@@ -67,10 +67,10 @@ function validateForm(){
             <td>{{ company[0].code }}</td>
             <td>{{ company[0].zwwname }}</td>
             <td>{{ company[0].scode }}</td>
-            <td>{{ report_data.cur_month_cnt }}</td>
             <td>{{ report_data.last_month_cnt }}</td>
             <td>{{ report_data.cur_month_add }}</td>
             <td>{{ report_data.cur_month_remove }}</td>
+            <td>{{ report_data.cur_month_cnt }}</td>
             <td>{{ company[0].injury_ratio }}</td>
         </tr>
         </tbody>
@@ -186,7 +186,7 @@ function validateForm(){
             </div>
             <label for="inputPassword2" class="col-1 col-form-label">确认人员</label>
             <div class="col-2">
-                <input value="{{report_data.report_person}}" required="required" type="text" class="form-control" placeholder="张铁牛" name="report_person">
+                <input readonly="readonly" value="{{report_data.report_person}}" required="required" type="text" class="form-control" placeholder="张铁牛" name="report_person">
             </div>
         </div>
         <div class="form-group row">
@@ -201,6 +201,7 @@ function validateForm(){
             {% if readonly != "readonly" %}
             <button type="submit" class="btn btn-primary">保存</button>
             {% endif %}
+            &nbsp;&nbsp;<input type="button" class="btn btn-primary" value="返回" onclick="javascript:history.back();">
         </div>
     </form>
 

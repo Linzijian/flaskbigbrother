@@ -18,10 +18,10 @@
         <thead>
         <tr>
             <th>月份</th>
-            <th>当月人数</th>
             <th>上月人数</th>
             <th>当月新增</th>
             <th>当月减少</th>
+            <th>当月人数</th>
             <th>缴费金额</th>
             <th>是否完成缴费</th>
         </tr>
@@ -30,10 +30,10 @@
         {% for report in reports %}
             <tr>
                 <td>{{ report.cur_month }}</td>
-                <td>{{ report.cur_month_cnt }}</td>
                 <td>{{ report.last_month_cnt }}</td>
                 <td>{{ report.cur_month_add }}</td>
                 <td>{{ report.cur_month_remove }}</td>
+                <td>{{ report.cur_month_cnt }}</td>
                 <td>{{ report.real_fee }}</td>
                 <td>{{ report.pay_state }}</td>
             </tr>
@@ -41,6 +41,7 @@
 
         </tbody>
     </table>
+<input type="button" class="btn btn-primary" value="返回" onclick="javascript:history.back();">
 </div>
 </body>
 </html>

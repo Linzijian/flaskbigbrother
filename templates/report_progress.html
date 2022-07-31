@@ -36,10 +36,10 @@
             <th>社保编号</th>
 <!--            <th>辽宁政务网用户名</th>-->
             <th>税号</th>
-            <th>当月</th>
             <th>上月</th>
             <th>增加</th>
             <th>减少</th>
+            <th>当月</th>
 <!--            <th>是否确认</th>-->
             <th>名单确认</th>
             <th>可申报确认</th>
@@ -55,14 +55,14 @@
             <td>{{ company.code }}</td>
 <!--            <td>{{ company.zwwname }}</td>-->
             <td>{{ company.scode }}</td>
-            <td>{{ m_change_data[company.name]["cur_month_cnt"] }}</td>
             <td>{{ m_change_data[company.name]["last_month_cnt"] }}</td>
             <td>{{ m_change_data[company.name]["cur_month_add"] }}</td>
             <td>{{ m_change_data[company.name]["cur_month_remove"] }}</td>
+            <td>{{ m_change_data[company.name]["cur_month_cnt"] }}</td>
 <!--            <td>否</td>-->
             <th>
                 {% if m_change_data[company.name]['members_check']=="未开始" %}
-                <a href="#" class="btn btn-danger btn-sm" role="button">未开始</a>
+                <a href="" class="btn btn-danger btn-sm" role="button">未开始</a>
                 {% elif m_change_data[company.name]['members_check']=="进行中" %}
                 <a href="{{ url_for('confirm_member', name=company.name, readonly='F', cur_month=cur_month) }}" class="btn btn-warning btn-sm" role="button">进行中</a>
                 {% else %}
@@ -71,7 +71,7 @@
             </th>
             <th>
                 {% if m_change_data[company.name]['reportable_check']=="未开始" %}
-                <a href="#" class="btn btn-danger btn-sm" role="button">未开始</a>
+                <a href="" class="btn btn-danger btn-sm" role="button">未开始</a>
                 {% elif m_change_data[company.name]['reportable_check']=="进行中" %}
                 <a href="{{ url_for('reportable_check', name=company.name, readonly='F', cur_month=cur_month) }}" class="btn btn-warning btn-sm" role="button">进行中</a>
                 {% else %}
@@ -80,7 +80,7 @@
             </th>
             <th>
                 {% if m_change_data[company.name]['report_state']=="未开始" %}
-                <a href="#" class="btn btn-danger btn-sm" role="button">未开始</a>
+                <a href="" class="btn btn-danger btn-sm" role="button">未开始</a>
                 {% elif m_change_data[company.name]['report_state']=="进行中" %}
                 <a href="{{ url_for('report_check', name=company.name, readonly='F', cur_month=cur_month) }}" class="btn btn-warning btn-sm" role="button">进行中</a>
                 {% else %}
@@ -89,7 +89,7 @@
             </th>
             <th>
                 {% if m_change_data[company.name]['pay_state']=="未开始" %}
-                <a href="#" class="btn btn-danger btn-sm" role="button">未开始</a>
+                <a href="" class="btn btn-danger btn-sm" role="button">未开始</a>
                 {% elif m_change_data[company.name]['pay_state']=="进行中" %}
                 <a href="{{ url_for('pay_check', name=company.name, readonly='F', cur_month=cur_month) }}" class="btn btn-warning btn-sm" role="button">进行中</a>
                 {% else %}

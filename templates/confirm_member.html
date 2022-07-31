@@ -22,11 +22,11 @@
             <th>社保编号</th>
             <th>辽宁政务网用户名</th>
             <th>税号</th>
-<!--            <th>月份</th>-->
-            <th>当月</th>
+            <!--            <th>月份</th>-->
             <th>上月</th>
             <th>增加</th>
             <th>减少</th>
+            <th>当月</th>
         </tr>
         </thead>
         <tbody>
@@ -36,11 +36,11 @@
             <td>{{ company[0].code }}</td>
             <td>{{ company[0].zwwname }}</td>
             <td>{{ company[0].scode }}</td>
-<!--            <td>{{ company_data["cur_month"] }}</td>-->
-            <td>{{ company_data["cur_month_cnt"] }}</td>
+            <!--            <td>{{ company_data["cur_month"] }}</td>-->
             <td>{{ company_data["last_month_cnt"] }}</td>
             <td>{{ company_data["cur_month_add"] }}</td>
             <td>{{ company_data["cur_month_remove"] }}</td>
+            <td>{{ company_data["cur_month_cnt"] }}</td>
         </tr>
         </tbody>
     </table>
@@ -52,10 +52,10 @@
             <th>序号</th>
             <th>标识</th>
             <th>姓名</th>
-<!--            <th>公司名称</th>-->
+            <!--            <th>公司名称</th>-->
             <th>身份证号</th>
-<!--            <th>地址</th>-->
-<!--            <th>名族</th>-->
+            <!--            <th>地址</th>-->
+            <!--            <th>名族</th>-->
             <th>开始缴纳月份</th>
             <th>停止缴纳月份</th>
             <th>月工资</th>
@@ -65,41 +65,41 @@
             <th>医保</th>
             <th>生育</th>
             <th>五险均系统生效</th>
-<!--            <th>个人信息是否准确</th>-->
-<!--            <th>提交人名称</th>-->
+            <!--            <th>个人信息是否准确</th>-->
+            <!--            <th>提交人名称</th>-->
         </tr>
         </thead>
         <tbody>
         {% for member in members %}
-        <tr>
-            <td>{{ members.index(member)+1 }}</td>
-            {% if member.end_month == company_data["cur_month"] %}
-            <td><a href="#" class="btn btn-danger btn-sm" role="button">减</a></td>
-            {% elif member.begin_month == company_data["cur_month"] %}
-            <td><a href="#" class="btn btn-success btn-sm" role="button">增</a></td>
-            {% else %}
-            <td>正常</td>
-            {% endif %}
-            <td>{{ member.name }}</td>
-<!--            <td>{{ member.company_name }}</td>-->
-            <td>{{ member.id_card }}</td>
-<!--            <td>{{ member.nationality }}</td>-->
-            <td>{{ member.begin_month }}</td>
-            <td>{{ member.end_month }}</td>
-            <td>{{ member.salary }}</td>
-            <td>{{ member.injury }}</td>
-            <td>{{ member.endowment }}</td>
-            <td>{{ member.unemployment }}</td>
-            <td>{{ member.medical }}</td>
-            <td>{{ member.birth }}</td>
-            <td>{{ member.is_valid }}</td>
-<!--            <td>{{ member.is_valid }}</td>-->
-<!--            <td>{{ member.person }}</td>-->
-<!--            <th>-->
-<!--                <a href="{{ url_for('member_update', member_id=member.member_id) }}" class="btn btn-success btn-sm" role="button">修改</a>-->
-<!--                <a href="#" class="btn btn-danger btn-sm" role="button">删除</a>-->
-<!--            </th>-->
-        </tr>
+            <tr>
+                <td>{{ members.index(member)+1 }}</td>
+                {% if member.end_month == company_data["cur_month"] %}
+                    <td><a href="#" class="btn btn-danger btn-sm" role="button">减</a></td>
+                {% elif member.begin_month == company_data["cur_month"] %}
+                    <td><a href="#" class="btn btn-success btn-sm" role="button">增</a></td>
+                {% else %}
+                    <td>正常</td>
+                {% endif %}
+                <td>{{ member.name }}</td>
+                <!--            <td>{{ member.company_name }}</td>-->
+                <td>{{ member.id_card }}</td>
+                <!--            <td>{{ member.nationality }}</td>-->
+                <td>{{ member.begin_month }}</td>
+                <td>{{ member.end_month }}</td>
+                <td>{{ member.salary }}</td>
+                <td>{{ member.injury }}</td>
+                <td>{{ member.endowment }}</td>
+                <td>{{ member.unemployment }}</td>
+                <td>{{ member.medical }}</td>
+                <td>{{ member.birth }}</td>
+                <td>{{ member.is_valid }}</td>
+                <!--            <td>{{ member.is_valid }}</td>-->
+                <!--            <td>{{ member.person }}</td>-->
+                <!--            <th>-->
+                <!--                <a href="{{ url_for('member_update', member_id=member.member_id) }}" class="btn btn-success btn-sm" role="button">修改</a>-->
+                <!--                <a href="#" class="btn btn-danger btn-sm" role="button">删除</a>-->
+                <!--            </th>-->
+            </tr>
         {% endfor %}
 
         </tbody>
@@ -107,12 +107,13 @@
     <form name="myform" class="form-inline"
           action="{{ url_for('confirm_member', name=company_data['company_name'], readonly='readonly', cur_month=company_data['cur_month']) }}" method = "post">
         <label for="inputPassword2">确认人员： </label>
-        <input value="{{members_check_person}}" required="required" type="text" class="form-control" placeholder="张铁牛" name="name">
+        <input readonly="readonly" value="{{members_check_person}}" required="required" type="text" class="form-control" placeholder="张铁牛" name="name">
         {% if readonly != "readonly" %}
-        &nbsp;&nbsp;<button type="submit" class="btn btn-primary">确认该公司人员增减无误并提交</button>
+            &nbsp;&nbsp;<button type="submit" class="btn btn-primary">确认提交</button>
         {% endif %}
+        &nbsp;&nbsp;<input type="button" class="btn btn-primary" value="返回" onclick="javascript:history.back();">
     </form>
-<!--    <button type="submit" class="btn btn-secondary">需要所有人员的五险均系统生效后才可确认</button>-->
+    <!--    <button type="submit" class="btn btn-secondary">需要所有人员的五险均系统生效后才可确认</button>-->
 
 </div>
 
