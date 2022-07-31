@@ -17,7 +17,7 @@
 </head>
 <body>
 <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
-    <a class="navbar-brand" href="{{ url_for('home') }}">BigBrother</a>
+    <a class="navbar-brand" href="{{ url_for('home') }}">BigBrother {{ username }}</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
         <span class="navbar-toggler-icon"></span>
     </button>
@@ -65,6 +65,9 @@
                 </div>
             </li>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+{#            <li class="nav-item dropdown">#}
+{#            <a class="nav-link">hi, {{ username }}</a>#}
+{#            </li>#}
             <li class="nav-item dropdown">
                 <a class="nav-link" href="{{ url_for('logout') }}">退出登录</a>
             </li>

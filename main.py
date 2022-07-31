@@ -205,8 +205,8 @@ def insurance_calculator():
 @app.route('/', methods=['GET', 'POST'])
 def home():
     if 'username' not in session:
-        return render_template('login.html')
-    return render_template('home.html')
+        return redirect(url_for('login'))
+    return render_template('home.html', username=session["username"])
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -218,7 +218,7 @@ def login():
             session['username'] = request.form['name']
             return redirect(url_for('home'))
         text = 'error'
-    return render_template('login.html', text=text)
+    return render_template('login_new.html', text=text)
 
 
 @app.route('/logout')
