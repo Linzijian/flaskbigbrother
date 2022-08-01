@@ -551,7 +551,9 @@ def report_check(name, readonly, cur_month):
                            report_data=report_data,
                            company=Companys.query.filter_by(name=name).all(),
                            dic_company=insurance_calculator_company(name, cur_month),
-                           readonly=readonly)
+                           readonly=readonly,
+                           cur_add_members=Members.query.filter_by(company_name=name, begin_month=cur_month, is_valid='是').all(),
+                           endowment_medical_members=Members.query.filter_by(company_name=name, begin_month=cur_month, is_valid='是', endowment="报", medical="报").all())
 
 
 @app.route('/pay_check/<name>/<readonly>/<cur_month>', methods=['GET', 'POST'])
