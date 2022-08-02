@@ -9,9 +9,21 @@
     <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script>
 function update_data(){
-    var ill_cnt = document.getElementsByName('ill_members').length;
-
-    var predict_fee = {{ dic_company['predict_fee'] }} + 24 * ill_cnt;
+    var ill_members = document.getElementsByName('ill_members');
+    var ill_cnt = 0;
+    for(var i=0; i<ill_members.length; i++) {
+        if (ill_members[i].checked == true) {
+            ill_cnt += 1;
+        }
+    }
+    var em_members = document.getElementsByName('em_members');
+    var em_sum = 0;
+    for(var i=0; i<em_members.length; i++) {
+        if (em_members[i].checked == true) {
+            em_sum += parseFloat(em_members[i].value);
+        }
+    }
+    var predict_fee = {{ dic_company['predict_fee'] }} + 24 * ill_cnt - em_sum;
     document.getElementById("predict_fee").innerHTML = (predict_fee).toFixed(2);
 
 }
@@ -185,7 +197,8 @@ function validateForm(){
             <label for="name">本月已缴养老医疗人员勾选：</label>
             {% for member in endowment_medical_members %}
             <label class="checkbox-inline">
-                {{ member.name }}<input type="checkbox" name="em_members" value="">&nbsp;&nbsp;&nbsp;
+                {{ member.name }}<input type="checkbox" name="em_members" onchange="update_data()"
+                                        value="{{ member_data_dic[member.name]['endowment_c'] + member_data_dic[member.name]['endowment_i'] + member_data_dic[member.name]['medical_c'] + member_data_dic[member.name]['medical_i'] }}">&nbsp;&nbsp;&nbsp;
             </label>
             {% endfor %}
         </div>
