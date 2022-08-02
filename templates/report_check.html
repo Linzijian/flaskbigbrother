@@ -8,6 +8,14 @@
     <script src="https://cdn.staticfile.org/popper.js/1.15.0/umd/popper.min.js"></script>
     <script src="https://cdn.staticfile.org/twitter-bootstrap/4.3.1/js/bootstrap.min.js"></script>
 <script>
+function update_data(){
+    var ill_cnt = document.getElementsByName('ill_members').length;
+
+    var predict_fee = {{ dic_company['predict_fee'] }} + 24 * ill_cnt;
+    document.getElementById("predict_fee").innerHTML = (predict_fee).toFixed(2);
+
+}
+
 function validateForm(){
     var real_fee=document.forms["myform"]["real_fee"].value;
     if (real_fee=="" || isNaN(real_fee)){
@@ -169,7 +177,7 @@ function validateForm(){
             <label for="name">大病险人员勾选(全员<input type="checkbox" name="ill_all">)：</label>
             {% for member in cur_add_members %}
             <label class="checkbox-inline">
-                {{ member.name }}<input type="checkbox" name="ill_members" value="24">&nbsp;&nbsp;&nbsp;
+                {{ member.name }}<input onchange="update_data()" type="checkbox" name="ill_members" value="24">&nbsp;&nbsp;&nbsp;
             </label>
             {% endfor %}
         </div>
@@ -188,7 +196,8 @@ function validateForm(){
             </div>
             <label for="inputPassword" class="col-1 col-form-label">参考金额</label>
             <div class="col-2">
-                <input value="{{dic_company['predict_fee']}}" readonly="readonly" type="text" class="form-control" name="predict_fee">
+                <p id="predict_fee" class="form-control">{{dic_company['predict_fee']}}</p>
+<!--                <input value="{{dic_company['predict_fee']}}" readonly="readonly" type="text" class="form-control" name="predict_fee">-->
             </div>
             <label for="inputPassword" class="col-1 col-form-label">税务金额</label>
             <div class="col-2">

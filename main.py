@@ -69,6 +69,7 @@ def insurance_calculator_company(company_name, cur_month):
 
 
 def insurance_calculator_members(company_name, cur_month):
+    member_data_dic = {}
     dic_company = {"injury_base": 0, "endowment_base": 0, "unemployment_base": 0, "medical_base": 0, "birth_base": 0}
     members_list = []
     members = Members.query.filter_by(company_name=company_name).all()
@@ -124,6 +125,7 @@ def insurance_calculator_members(company_name, cur_month):
                           member_data["birth_base"], member_data["birth_c"], member_data["birth_i"],
                           member_data["sum_c"], member_data["sum_i"])
             members_list.append(member_text)
+            member_data_dic[member.name] = member_data
     dic_company["injury_c"] = round(dic_company["injury_base"] * m_base["injury_c"], 2)
     dic_company["endowment_c"] = round(dic_company["endowment_base"] * m_base["endowment_c"], 2)
     dic_company["unemployment_c"] = round(dic_company["unemployment_base"] * m_base["unemployment_c"], 2)
@@ -141,7 +143,7 @@ def insurance_calculator_members(company_name, cur_month):
     head_str = dic_result[company_name]["description"]
     tail_str = "单位部分合计%.2f元，个人部分合计%.2f元，合计%.2f元."%(dic_company["predict_fee_c"], dic_company["predict_fee_i"], dic_company["predict_fee_c"]+dic_company["predict_fee_i"])
     text = head_str + tail_str + "明细如下：\n" + "\n".join(members_list)
-    return text
+    return text, member_data_dic
 
 
 def get_cur_month_change_data_dic(cur_month):
@@ -547,13 +549,15 @@ def report_check(name, readonly, cur_month):
             return redirect(url_for('report_check', name=name, readonly=readonly, cur_month=cur_month))
     if report_data.report_person == "":
         report_data.report_person = session['username']
+    text, member_data_dic = insurance_calculator_members(name, cur_month)
     return render_template('report_check.html',
                            report_data=report_data,
                            company=Companys.query.filter_by(name=name).all(),
                            dic_company=insurance_calculator_company(name, cur_month),
                            readonly=readonly,
                            cur_add_members=Members.query.filter_by(company_name=name, begin_month=cur_month, is_valid='是').all(),
-                           endowment_medical_members=Members.query.filter_by(company_name=name, begin_month=cur_month, is_valid='是', endowment="报", medical="报").all())
+                           endowment_medical_members=Members.query.filter_by(company_name=name, begin_month=cur_month, is_valid='是', endowment="报", medical="报").all(),
+                           member_data_dic=member_data_dic)
 
 
 @app.route('/pay_check/<name>/<readonly>/<cur_month>', methods=['GET', 'POST'])
@@ -577,11 +581,12 @@ def pay_check(name, readonly, cur_month):
     company = Companys.query.filter_by(name=name).all()
     if report_data.pay_type == "":
         report_data.pay_type = company[0].pay_type
+    text, member_data_dic = insurance_calculator_members(name, cur_month)
     return render_template('pay_check.html',
                            report_data=report_data,
                            company=company,
                            dic_company=insurance_calculator_company(name, cur_month),
-                           text=insurance_calculator_members(name, cur_month),
+                           text=text,
                            readonly=readonly)
 
 
