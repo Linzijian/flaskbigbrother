@@ -38,16 +38,16 @@ function update_data(){
             medical_c = parseFloat(em_payed_members[i].value.split("_")[5]);
             medical_i = parseFloat(em_payed_members[i].value.split("_")[6]);
 
-            em_payed_sum += endowment_c + endowment_i + medical_c + medical_i;
             medical_base_sum -= medical_base;
             medical_c_sum -= medical_c;
             medical_i_sum -= medical_i;
             endowment_base_sum -= endowment_base;
-            endowment_c_sum = endowment_base_sum * 0.16;
-            endowment_i_sum = endowment_base_sum * 0.08;
         }
     }
-    var predict_fee = {{ dic_company['predict_fee'] }} + ill_sum - em_payed_sum;
+    endowment_c_sum = endowment_base_sum * 0.16;
+    endowment_i_sum = endowment_base_sum * 0.08;
+    em_payed_sum += medical_c_sum + medical_i_sum + endowment_c_sum + endowment_i_sum;
+    var predict_fee = {{ dic_company['predict_fee']-dic_company['medical_c']-dic_company['medical_i']-dic_company['endowment_c']-dic_company['endowment_i'] }} + em_payed_sum + ill_sum;
     document.getElementById("predict_fee").value = (predict_fee).toFixed(2);
     document.getElementById("medical_base").value = (medical_base_sum).toFixed(2);
     document.getElementById("medical_c").value = (medical_c_sum).toFixed(2);
