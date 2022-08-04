@@ -43,13 +43,17 @@ class Reports(db.Model):
     pay_list_print = db.Column(db.String(200))
     pay_state = db.Column(db.String(200))
     pay_check_person = db.Column(db.String(200))
+    ill_all = db.Column(db.String(200))
+    ill_members = db.Column(db.String(500))
+    em_payed_members = db.Column(db.String(500))
     UniqueConstraint(cur_month, company_name, name='uix_1')
 
     def __init__(self, cur_month, company_name, code, zwwname, scode, last_month_cnt, cur_month_cnt, cur_month_add,
                  cur_month_remove, members_check, members_check_person, reportable_check="不可申报",
                  reportable_check_person="", injury="其他", endowment="其他", unemployment="其他", medical="其他", birth="其他",
                  ill_cnt=0, predict_fee=0, real_fee=0, reason_text="",
-                 report_state="未完成",report_person="",pay_type="",pay_list_print="",pay_state="未完成",pay_check_person=""):
+                 report_state="未完成",report_person="",pay_type="",pay_list_print="",pay_state="未完成",pay_check_person="",
+                 ill_all="否", ill_members="", em_payed_members=""):
         self.cur_month = cur_month
         self.company_name = company_name
         self.code = code
@@ -78,4 +82,7 @@ class Reports(db.Model):
         self.pay_list_print = pay_list_print
         self.pay_state = pay_state
         self.pay_check_person = pay_check_person
+        self.ill_all = ill_all
+        self.ill_members = ill_members
+        self.em_payed_members = em_payed_members
         db.create_all()
