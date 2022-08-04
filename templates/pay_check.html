@@ -130,9 +130,7 @@ function validateForm(){
         <div class="form-group row">
             <label for="inputPassword2" class="col-1 col-form-label">缴款方式</label>
             <div class="col-2">
-                <select class="form-control" name="pay_type">
-                    <option>{{report_data.pay_type}}</option>
-                </select>
+                <input value="{{report_data.pay_type}}" type="text" readonly="readonly" class="form-control" name="pay_type">
             </div>
             <label for="inputPassword2" class="col-1 col-form-label">是否缴费</label>
             <div class="col-2">

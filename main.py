@@ -637,7 +637,7 @@ def pay_check(name, readonly, cur_month):
                 "pay_check_person": request.form['pay_check_person']}
         db.session.query(Reports).filter(and_(Reports.company_name == name, Reports.cur_month == cur_month)).update(data)
         db.session.commit()
-        if request.form['pay_state'] == "已完成":
+        if request.form['pay_state'] == "已完成" and request.form['pay_list_print'] == "已完成":
             flash(name + '，已完成缴费确认！')
             return redirect(url_for('report_progress', name=name))
         else:
@@ -662,6 +662,14 @@ def company_pay_history(company_name):
     return render_template('company_pay_history.html',
                            company_name=company_name,
                            reports=Reports.query.filter_by(company_name=company_name).all())
+
+
+@app.route('/member_pay_history/<id_card>', methods=['GET', 'POST'])
+def member_pay_history(id_card):
+    name = Members.query.filter_by(id_card=id_card).all()[0].name
+    return render_template('member_pay_history.html',
+                           name=name,
+                           member_reports=Member_reports.query.filter_by(name=name).all())
 
 
 if __name__ == "__main__":
