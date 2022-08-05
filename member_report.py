@@ -12,6 +12,7 @@ class Member_reports(db.Model):
     member_report_id = db.Column('member_report_id', db.Integer, primary_key=True)
     name = db.Column(db.String(200))
     company_name = db.Column(db.String(200))
+    id_card = db.Column(db.String(200))
     cur_month = db.Column(db.String(200))
     salary = db.Column(db.Float)
     injury = db.Column(db.Float)
@@ -21,9 +22,10 @@ class Member_reports(db.Model):
     birth = db.Column(db.Float)
     ill = db.Column(db.Float)
 
-    def __init__(self, name, company_name, cur_month, salary, injury, endowment, unemployment, medical, birth, ill):
+    def __init__(self, name, company_name, id_card, cur_month, salary, injury, endowment, unemployment, medical, birth, ill):
         self.name = name
         self.company_name = company_name
+        self.id_card = id_card
         self.cur_month = cur_month
         self.salary = salary
         self.injury = injury

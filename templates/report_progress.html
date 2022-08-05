@@ -25,6 +25,7 @@
         <label for="inputPassword2">&nbsp;&nbsp;&nbsp;&nbsp;公司名称：</label>
         <input value="{{name}}" type="text" class="form-control" id="inputPassword2" placeholder="所有公司" name="name">
         <button type="submit" class="btn btn-primary">查询</button>
+        &nbsp;&nbsp;&nbsp;&nbsp;<a href="{{ url_for('export_member_record', cur_month=cur_month) }}" class="btn btn-success btn-sm" role="button">导出{{cur_month}}月人员缴费数据</a>
     </form>
 
     <p></p>

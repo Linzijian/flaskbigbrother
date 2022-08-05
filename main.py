@@ -8,6 +8,7 @@ from user import Users
 from member_report import Member_reports
 import datetime
 from dateutil.relativedelta import relativedelta
+import flask_excel as excel
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bigbrother.db'
@@ -150,7 +151,7 @@ def insurance_calculator_members(company_name, cur_month):
     dic_company["predict_fee_i"] = dic_company["injury_i"] + dic_company["endowment_i"] + dic_company["unemployment_i"] +\
                                    dic_company["medical_i"] + dic_company["birth_i"]
     head_str = dic_result[company_name]["description"]
-    tail_str = "单位部分合计%.2f元，个人部分合计%.2f元，合计%.2f元."%(dic_company["predict_fee_c"], dic_company["predict_fee_i"], dic_company["predict_fee_c"]+dic_company["predict_fee_i"])
+    tail_str = "\n单位部分合计%.2f元，个人部分合计%.2f元，合计%.2f元."%(dic_company["predict_fee_c"], dic_company["predict_fee_i"], dic_company["predict_fee_c"]+dic_company["predict_fee_i"])
     text = head_str + tail_str + "明细如下：\n" + "\n".join(members_list)
     return text, member_data_dic
 
@@ -181,9 +182,12 @@ def get_cur_month_change_data_dic(cur_month):
             dic_result[member.company_name]["cur_month_remove_m"].append(member.name)
     for company_name in dic_result:
         description = company_name + ", " + cur_month + ", 上月申报" + str(dic_result[company_name]["last_month_cnt"]) +\
-        "人(" + ",".join(dic_result[company_name]["last_month_members"]) + "), 本月申报" + str(dic_result[company_name]["cur_month_cnt"]) +\
-        "人, 新增" + str(dic_result[company_name]["cur_month_add"]) +"人(" + ",".join(dic_result[company_name]["cur_month_add_m"]) +\
-        "), 减少" + str(dic_result[company_name]["cur_month_remove"]) +"人(" + ",".join(dic_result[company_name]["cur_month_remove_m"]) + ")."
+        "人(" + ",".join(dic_result[company_name]["last_month_members"]) + ")"
+        if dic_result[company_name]["cur_month_add"] > 0:
+            description += ", 新增" + str(dic_result[company_name]["cur_month_add"]) +"人(" + ",".join(dic_result[company_name]["cur_month_add_m"]) + ")"
+        if dic_result[company_name]["cur_month_remove"] > 0:
+            description += ", 减少" + str(dic_result[company_name]["cur_month_remove"]) +"人(" + ",".join(dic_result[company_name]["cur_month_remove_m"]) + ")"
+        description += ", 本月申报" + str(dic_result[company_name]["cur_month_cnt"]) + "人."
         dic_result[company_name]["description"] = description
     return dic_result
 
@@ -530,26 +534,27 @@ def reportable_check(name, readonly, cur_month):
                            readonly=readonly)
 
 
-def write_member_report(c_name, cur_month, ill_members_list, em_payed_members_list):
+def write_member_report(c_name, cur_month, ill_members, em_payed_members):
     text, member_data_dic = insurance_calculator_members(c_name, cur_month)
-    members = Members.query.filter_by(company_name=c_name, begin_month=cur_month, is_valid='是').all()
+    members = Members.query.filter_by(company_name=c_name, end_month="", is_valid='是').all()
     for member in members:
         name = member.name
         company_name = c_name
         salary = member.salary
+        id_card = member.id_card
         injury = 0
         endowment = member_data_dic[name]["endowment_i"]
-        if name in em_payed_members_list:
+        if name in em_payed_members.split(","):
             endowment = 0
         unemployment = member_data_dic[name]["unemployment_i"]
         medical = member_data_dic[name]["medical_i"]
-        if name in em_payed_members_list:
+        if name in em_payed_members.split(","):
             medical = 0
         birth = 0
         ill = 0
-        if name in ill_members_list:
+        if name in ill_members.split(","):
             ill = 24
-        member_report = Member_reports(name, company_name, cur_month, salary, injury, endowment, unemployment, medical, birth, ill)
+        member_report = Member_reports(name, company_name, id_card, cur_month, salary, injury, endowment, unemployment, medical, birth, ill)
         db.session.add(member_report)
         db.session.commit()
 
@@ -606,7 +611,6 @@ def report_check(name, readonly, cur_month):
         db.session.commit()
         if report_state == "已完成":
             flash(name + '，已完成申报确认！')
-            write_member_report(name, cur_month, ill_members_list, em_payed_members_list)
             return redirect(url_for('report_progress', name=name))
         else:
             flash('修改完成！')
@@ -639,6 +643,7 @@ def pay_check(name, readonly, cur_month):
         db.session.commit()
         if request.form['pay_state'] == "已完成" and request.form['pay_list_print'] == "已完成":
             flash(name + '，已完成缴费确认！')
+            write_member_report(name, cur_month, report_data.ill_members, report_data.em_payed_members)
             return redirect(url_for('report_progress', name=name))
         else:
             flash('修改完成！')
@@ -667,9 +672,24 @@ def company_pay_history(company_name):
 @app.route('/member_pay_history/<id_card>', methods=['GET', 'POST'])
 def member_pay_history(id_card):
     name = Members.query.filter_by(id_card=id_card).all()[0].name
+    member_reports = Member_reports.query.filter_by(id_card=id_card).all()
+    for member in member_reports:
+        member.birth = round(member.endowment + member.unemployment + member.medical + member.ill, 2)
     return render_template('member_pay_history.html',
                            name=name,
-                           member_reports=Member_reports.query.filter_by(name=name).all())
+                           member_reports=member_reports)
+
+
+@app.route("/export_member_record/<cur_month>", methods=['GET'])
+def export_member_record(cur_month):
+    content = [['序号', '公司名称', '姓名', '工资', '绩效', '应发工资', '养老（个人）', '失业（个人）', '医保（个人）', '大病（个人）', '公积金（个人）', '实发工资']]
+    member_reports = Member_reports.query.filter_by(cur_month=cur_month).all()
+    i = 1
+    for member in member_reports:
+        line = [i, member.company_name, member.name, member.salary, "", "", member.endowment, member.unemployment, member.medical, member.ill, "", ""]
+        content.append(line)
+        i += 1
+    return excel.make_response_from_array(content, "xlsx", file_name=cur_month)
 
 
 if __name__ == "__main__":
@@ -678,7 +698,8 @@ if __name__ == "__main__":
                       "1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
                       "1", "1")
     reports = Reports("1", "1", "1", "1", "1", 0, 0, 0, 0, "1", "1")
-    member_reports = Member_reports("1", "1", "1", 0, 0, 0, 0, 0, 0, 0)
+    member_reports = Member_reports("1", "1", "1", "1", 0, 0, 0, 0, 0, 0, 0)
     db.create_all()
+    excel.init_excel(app)
     app.run(debug=True, port=80, host="0.0.0.0")
     # app.run(port=80, host="0.0.0.0")
