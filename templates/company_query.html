@@ -55,7 +55,7 @@
             <td>{{ company.is_valid }}</td>
             <td>{{ company.person }}</td>
             <th>
-                <a href="{{ url_for('company_update', name=company.name) }}" class="btn btn-success btn-sm" role="button">查看/修改</a>
+                <a href="{{ url_for('company_update', company_name=company.name) }}" class="btn btn-success btn-sm" role="button">查看/修改</a>
                 &nbsp;<a href="{{ url_for('member_query', company_name=company.name) }}" class="btn btn-success btn-sm" role="button">查看人员</a>
                 &nbsp;<a href="{{ url_for('company_pay_history', company_name=company.name) }}" class="btn btn-success btn-sm" role="button">历史缴费</a>
             </th>

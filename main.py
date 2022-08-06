@@ -27,7 +27,8 @@ def get_last_month(number, year, month, day):
 
 
 def insurance_calculator_company(company_name, cur_month, em_payed_members=""):
-    dic_company = {"injury_base": 0, "endowment_base": 0, "unemployment_base": 0, "medical_base": 0, "birth_base": 0}
+    dic_company = {"injury_base": 0, "endowment_base": 0, "unemployment_base": 0, "medical_base": 0, "birth_base": 0,
+                   "medical_c": 0, "medical_i": 0, "birth_c": 0, "birth_i": 0}
     members = Members.query.filter_by(company_name=company_name).all()
     company = Companys.query.filter_by(name=company_name).all()[0]
     m_base = {"injury_base": 3284, "injury_c": company.injury_ratio/100.0, "injury_i": 0,
@@ -78,9 +79,10 @@ def insurance_calculator_company(company_name, cur_month, em_payed_members=""):
     return dic_company
 
 
-def insurance_calculator_members(company_name, cur_month):
+def insurance_calculator_members(company_name, cur_month, ill_members="", em_payed_members=""):
     member_data_dic = {}
-    dic_company = {"injury_base": 0, "endowment_base": 0, "unemployment_base": 0, "medical_base": 0, "birth_base": 0}
+    dic_company = {"injury_base": 0, "endowment_base": 0, "unemployment_base": 0, "medical_base": 0, "birth_base": 0,
+                   "medical_c": 0, "medical_i": 0, "birth_c": 0, "birth_i": 0}
     members_list = []
     members = Members.query.filter_by(company_name=company_name).all()
     members_filter = []
@@ -101,18 +103,25 @@ def insurance_calculator_members(company_name, cur_month):
             if member.injury == "报":
                 dic_company["injury_base"] += max(salary, m_base["injury_base"])
                 member_data["injury_base"] = max(salary, m_base["injury_base"])
-            if member.endowment == "报":
+            if member.endowment == "报" and member.name not in em_payed_members.split(","):
                 dic_company["endowment_base"] += max(salary, m_base["endowment_base"])
                 member_data["endowment_base"] = max(salary, m_base["endowment_base"])
             if member.unemployment == "报":
                 dic_company["unemployment_base"] += max(salary, m_base["unemployment_base"])
                 member_data["unemployment_base"] = max(salary, m_base["unemployment_base"])
-            if member.medical == "报":
+            if member.medical == "报" and member.name not in em_payed_members.split(","):
                 dic_company["medical_base"] += max(salary, m_base["medical_base"])
                 member_data["medical_base"] = max(salary, m_base["medical_base"])
+                dic_company["medical_c"] += round(max(salary, m_base["medical_base"]) * m_base["medical_c"], 2)
+                dic_company["medical_i"] += round(max(salary, m_base["medical_base"]) * m_base["medical_i"], 2)
             if member.birth == "报":
                 dic_company["birth_base"] += max(salary, m_base["birth_base"])
                 member_data["birth_base"] = max(salary, m_base["birth_base"])
+                dic_company["birth_c"] += round(max(salary, m_base["birth_base"]) * m_base["birth_c"], 2)
+                dic_company["birth_i"] += round(max(salary, m_base["birth_base"]) * m_base["birth_i"], 2)
+            member_data["ill"] = 0
+            if member.name in ill_members.split(","):
+                member_data["ill"] = 24
 
             member_data["injury_c"] = round(member_data["injury_base"] * m_base["injury_c"], 2)
             member_data["endowment_c"] = round(member_data["endowment_base"] * m_base["endowment_c"], 2)
@@ -124,35 +133,38 @@ def insurance_calculator_members(company_name, cur_month):
             member_data["unemployment_i"] = round(member_data["unemployment_base"] * m_base["unemployment_i"], 2)
             member_data["medical_i"] = round(member_data["medical_base"] * m_base["medical_i"], 2)
             member_data["birth_i"] = round(member_data["birth_base"] * m_base["birth_i"], 2)
-            member_data["sum_i"] = member_data["injury_i"] + member_data["endowment_i"] + member_data["unemployment_i"] + member_data["medical_i"] + member_data["birth_i"]
+            member_data["sum_i"] = member_data["injury_i"] + member_data["endowment_i"] + member_data["unemployment_i"] + member_data["medical_i"] + member_data["birth_i"] + member_data["ill"]
             member_data["sum_c"] = member_data["injury_c"] + member_data["endowment_c"] + member_data["unemployment_c"] + member_data["medical_c"] + member_data["birth_c"]
-            member_text = "%s:工伤(基数%.2f，单位%.2f，个人%.2f),养老(基数%.2f，单位%.2f，个人%.2f),失业(基数%.2f，单位%.2f，个人%.2f)," \
-                          "医疗(基数%.2f，单位%.2f，个人%.2f),生育(基数%.2f，单位%.2f，个人%.2f)，单位总计%.2f元，个人总计%.2f元."%(member.name,
-                          member_data["injury_base"], member_data["injury_c"], member_data["injury_i"],
-                          member_data["endowment_base"], member_data["endowment_c"], member_data["endowment_i"],
-                          member_data["unemployment_base"], member_data["unemployment_c"], member_data["unemployment_i"],
-                          member_data["medical_base"], member_data["medical_c"], member_data["medical_i"],
-                          member_data["birth_base"], member_data["birth_c"], member_data["birth_i"],
-                          member_data["sum_c"], member_data["sum_i"])
+            member_text = member.name.ljust(5, chr(12288)) + "单位部分: %.2f元\n"%(member_data["sum_c"]) + "".ljust(5, chr(12288)) + "个人部分:"
+            if member_data["endowment_i"] > 0:
+                member_text += " 养老%.2f元"%(member_data["endowment_i"])
+            if member_data["medical_i"] > 0:
+                member_text += " 医疗%.2f元" % (member_data["medical_i"])
+            if member_data["unemployment_i"] > 0:
+                member_text += " 失业%.2f元" % (member_data["unemployment_i"])
+            if member_data["ill"] > 0:
+                member_text += " 大病%.2f元" % (member_data["ill"])
+            member_text += " 合计%.2f元"%(member_data["sum_i"])
+
             members_list.append(member_text)
             member_data_dic[member.name] = member_data
     dic_company["injury_c"] = round(dic_company["injury_base"] * m_base["injury_c"], 2)
     dic_company["endowment_c"] = round(dic_company["endowment_base"] * m_base["endowment_c"], 2)
     dic_company["unemployment_c"] = round(dic_company["unemployment_base"] * m_base["unemployment_c"], 2)
-    dic_company["medical_c"] = round(dic_company["medical_base"] * m_base["medical_c"], 2)
-    dic_company["birth_c"] = round(dic_company["birth_base"] * m_base["birth_c"], 2)
+    # dic_company["medical_c"] = round(dic_company["medical_base"] * m_base["medical_c"], 2)
+    # dic_company["birth_c"] = round(dic_company["birth_base"] * m_base["birth_c"], 2)
     dic_company["injury_i"] = round(dic_company["injury_base"] * m_base["injury_i"], 2)
     dic_company["endowment_i"] = round(dic_company["endowment_base"] * m_base["endowment_i"], 2)
     dic_company["unemployment_i"] = round(dic_company["unemployment_base"] * m_base["unemployment_i"], 2)
-    dic_company["medical_i"] = round(dic_company["medical_base"] * m_base["medical_i"], 2)
-    dic_company["birth_i"] = round(dic_company["birth_base"] * m_base["birth_i"], 2)
+    # dic_company["medical_i"] = round(dic_company["medical_base"] * m_base["medical_i"], 2)
+    # dic_company["birth_i"] = round(dic_company["birth_base"] * m_base["birth_i"], 2)
     dic_company["predict_fee_c"] = dic_company["injury_c"] + dic_company["endowment_c"] + dic_company["unemployment_c"] +\
                                    dic_company["medical_c"] + dic_company["birth_c"]
     dic_company["predict_fee_i"] = dic_company["injury_i"] + dic_company["endowment_i"] + dic_company["unemployment_i"] +\
-                                   dic_company["medical_i"] + dic_company["birth_i"]
+                                   dic_company["medical_i"] + dic_company["birth_i"] + 24 * len(ill_members.split(","))
     head_str = dic_result[company_name]["description"]
-    tail_str = "\n单位部分合计%.2f元，个人部分合计%.2f元，合计%.2f元."%(dic_company["predict_fee_c"], dic_company["predict_fee_i"], dic_company["predict_fee_c"]+dic_company["predict_fee_i"])
-    text = head_str + tail_str + "明细如下：\n" + "\n".join(members_list)
+    tail_str = "\n单位部分合计%.2f元, 个人部分合计%.2f元, 合计%.2f元. 明细如下:\n"%(dic_company["predict_fee_c"], dic_company["predict_fee_i"], dic_company["predict_fee_c"]+dic_company["predict_fee_i"])
+    text = head_str + tail_str + "\n".join(members_list)
     return text, member_data_dic
 
 
@@ -242,25 +254,25 @@ def logout():
     return redirect(url_for('home'))
 
 
-@app.route('/company_update/<name>', methods=['GET', 'POST'])
-def company_update(name):
+@app.route('/company_update/<company_name>', methods=['GET', 'POST'])
+def company_update(company_name):
     if request.method == 'POST':
         if not request.form['name'] or not request.form['position'] or not request.form['code']\
                 or not request.form['zwwname'] or not request.form['scode'] or not request.form['person']\
                 or not request.form['is_valid'] or not request.form['injury_ratio'] or not request.form['short_name']:
             flash('输入有误！', 'error')
         else:
-            data = {"name":request.form['name'], "position":request.form['position'], "code":request.form['code'],
-                    "zwwname":request.form['zwwname'], "scode":request.form['scode'], "injury_ratio":request.form['injury_ratio'],
-                    "person": session['username'], "is_valid":request.form['is_valid'], "pay_type":request.form['pay_type'],
-                    "short_name":request.form['short_name']}
-            db.session.query(Companys).filter(Companys.name == request.form['name']).update(data)
+            data = {"name": request.form['name'], "position": request.form['position'], "code": request.form['code'],
+                    "zwwname": request.form['zwwname'], "scode": request.form['scode'], "injury_ratio": request.form['injury_ratio'],
+                    "person": session['username'], "is_valid": request.form['is_valid'], "pay_type": request.form['pay_type'],
+                    "short_name": request.form['short_name']}
+            db.session.query(Companys).filter(Companys.name == company_name).update(data)
             db.session.commit()
             flash('修改成功！')
             return render_template('company_update.html',
                                    companys=Companys.query.filter_by(name=request.form['name']).all())
     return render_template('company_update.html',
-                           companys=Companys.query.filter_by(name=name).all())
+                           companys=Companys.query.filter_by(name=company_name).all())
 
 
 @app.route('/company_query', methods=['GET', 'POST'])
@@ -277,11 +289,8 @@ def company_query():
 @app.route('/company_add', methods=['GET', 'POST'])
 def company_add():
     if request.method == 'POST':
-        if not request.form['name'] or not request.form['position'] or not request.form['code']\
-                or not request.form['zwwname'] or not request.form['scode']\
-                or not request.form['is_valid'] or not request.form['injury_ratio']\
-                or not request.form['short_name']:
-            flash('输入有误！', 'error')
+        if len(Companys.query.filter_by(name=request.form['name']).all()) > 0:
+            flash('新增失败，公司名称不能重复！', 'error')
         else:
             company = Companys(request.form['name'], request.form['position'], request.form['code'],
                                request.form['zwwname'], request.form['scode'], request.form['injury_ratio'],
@@ -290,7 +299,7 @@ def company_add():
             db.session.add(company)
             db.session.commit()
             flash('新增成功！')
-            return redirect(url_for('company_add'))
+            return redirect(url_for('company_query'))
     return render_template('company_add.html')
 
 
@@ -347,12 +356,10 @@ def member_query(company_name):
 
 
 @app.route('/member_add', methods=['GET', 'POST'])
-def member_add():  # company_name, name, id_card, address, nationality, begin_month, end_month, is_valid
+def member_add():
     if request.method == 'POST':
-        if not request.form['company_name'] or not request.form['name'] or not request.form['id_card']\
-                or not request.form['address'] or not request.form['nationality'] or not request.form['begin_month']\
-                or not request.form['is_valid'] or not request.form['salary']:
-            flash('输入有误！', 'error')
+        if len(Members.query.filter_by(id_card=request.form['id_card'], company_name=request.form['company_name']).all()) > 0:
+            flash('新增失败，%s公司已包含身份证号为%s的人员！'%(request.form['company_name'], request.form['id_card']), 'error')
         else:
             member = Members(request.form['company_name'], request.form['name'], request.form['id_card'],
                              request.form['address'], request.form['nationality'], request.form['begin_month'],
@@ -367,7 +374,7 @@ def member_add():  # company_name, name, id_card, address, nationality, begin_mo
             db.session.add(member)
             db.session.commit()
             flash('新增成功！')
-            return redirect(url_for('member_add'))
+            return redirect(url_for('member_query', company_name="all"))
     return render_template('member_add.html', companys=Companys.query.all(),
                            cur_month=get_cur_month())
 
@@ -535,7 +542,7 @@ def reportable_check(name, readonly, cur_month):
 
 
 def write_member_report(c_name, cur_month, ill_members, em_payed_members):
-    text, member_data_dic = insurance_calculator_members(c_name, cur_month)
+    text, member_data_dic = insurance_calculator_members(c_name, cur_month, ill_members, em_payed_members)
     members = Members.query.filter_by(company_name=c_name, end_month="", is_valid='是').all()
     for member in members:
         name = member.name
@@ -544,16 +551,14 @@ def write_member_report(c_name, cur_month, ill_members, em_payed_members):
         id_card = member.id_card
         injury = 0
         endowment = member_data_dic[name]["endowment_i"]
-        if name in em_payed_members.split(","):
-            endowment = 0
+        # if name in em_payed_members.split(","):
+        #     endowment = 0
         unemployment = member_data_dic[name]["unemployment_i"]
         medical = member_data_dic[name]["medical_i"]
-        if name in em_payed_members.split(","):
-            medical = 0
+        # if name in em_payed_members.split(","):
+        #     medical = 0
         birth = 0
-        ill = 0
-        if name in ill_members.split(","):
-            ill = 24
+        ill = member_data_dic[name]["ill"]
         member_report = Member_reports(name, company_name, id_card, cur_month, salary, injury, endowment, unemployment, medical, birth, ill)
         db.session.add(member_report)
         db.session.commit()
@@ -653,7 +658,7 @@ def pay_check(name, readonly, cur_month):
     company = Companys.query.filter_by(name=name).all()
     if report_data.pay_type == "":
         report_data.pay_type = company[0].pay_type
-    text, member_data_dic = insurance_calculator_members(name, cur_month)
+    text, member_data_dic = insurance_calculator_members(name, cur_month, report_data.ill_members, report_data.em_payed_members)
     return render_template('pay_check.html',
                            report_data=report_data,
                            company=company,
@@ -666,13 +671,13 @@ def pay_check(name, readonly, cur_month):
 def company_pay_history(company_name):
     return render_template('company_pay_history.html',
                            company_name=company_name,
-                           reports=Reports.query.filter_by(company_name=company_name).all())
+                           reports=Reports.query.filter_by(company_name=company_name).order_by(Reports.cur_month.asc()).all())
 
 
 @app.route('/member_pay_history/<id_card>', methods=['GET', 'POST'])
 def member_pay_history(id_card):
     name = Members.query.filter_by(id_card=id_card).all()[0].name
-    member_reports = Member_reports.query.filter_by(id_card=id_card).all()
+    member_reports = Member_reports.query.filter_by(id_card=id_card).order_by(Member_reports.cur_month.asc()).all()
     for member in member_reports:
         member.birth = round(member.endowment + member.unemployment + member.medical + member.ill, 2)
     return render_template('member_pay_history.html',

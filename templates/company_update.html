@@ -29,7 +29,7 @@ if (x=="" || isNaN(x)){
          </div>
     {%- endfor %}
     <p></p>
-    <form name="myform" onsubmit="return validateForm()" action="{{ url_for('company_update', name=companys[0].name) }}" method = "post">
+    <form name="myform" onsubmit="return validateForm()" action="{{ url_for('company_update', company_name=companys[0].name) }}" method = "post">
         <div class="form-group row">
             <label for="inputPassword" class="col-2 col-form-label">公司名称：</label>
             <div class="col-3">
