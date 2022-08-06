@@ -38,8 +38,8 @@ function update_data(){
     document.getElementById("medical_i_fee").innerHTML = (medical_base * medical_i / 100.0).toFixed(2);
 
     // var birth_base = document.getElementById("birth_base").value;
-    var birth_base = injury_base;
-    document.getElementById("birth_base").value = injury_base;
+    var birth_base = medical_base;
+    document.getElementById("birth_base").value = medical_base;
     var birth_c = document.getElementById("birth_c").value;
     var birth_i = document.getElementById("birth_i").value;
     document.getElementById("birth_c_fee").innerHTML = (birth_base * birth_c / 100.0).toFixed(2);
