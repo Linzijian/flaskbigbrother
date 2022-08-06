@@ -1,1 +1,1 @@
-sudo /home/lighthouse/anaconda3/bin/python3.7 main.py
+sudo nohup /home/lighthouse/anaconda3/bin/python3.7 main.py &
