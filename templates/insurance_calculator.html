@@ -15,13 +15,17 @@ function update_data(){
     document.getElementById("injury_c_fee").innerHTML = (injury_base * injury_c / 100).toFixed(2);
     document.getElementById("injury_i_fee").innerHTML = (injury_base * injury_i / 100).toFixed(2);
 
-    var endowment_base = document.getElementById("endowment_base").value;
+    // var endowment_base = document.getElementById("endowment_base").value;
+    var endowment_base = injury_base;
+    document.getElementById("endowment_base").value = injury_base;
     var endowment_c = document.getElementById("endowment_c").value;
     var endowment_i = document.getElementById("endowment_i").value;
     document.getElementById("endowment_c_fee").innerHTML = (endowment_base * endowment_c / 100.0).toFixed(2);
     document.getElementById("endowment_i_fee").innerHTML = (endowment_base * endowment_i / 100.0).toFixed(2);
 
-    var unemployment_base = document.getElementById("unemployment_base").value;
+    // var unemployment_base = document.getElementById("unemployment_base").value;
+    var unemployment_base = injury_base;
+    document.getElementById("unemployment_base").value = injury_base;
     var unemployment_c = document.getElementById("unemployment_c").value;
     var unemployment_i = document.getElementById("unemployment_i").value;
     document.getElementById("unemployment_c_fee").innerHTML = (unemployment_base * unemployment_c / 100.0).toFixed(2);
@@ -33,7 +37,9 @@ function update_data(){
     document.getElementById("medical_c_fee").innerHTML = (medical_base * medical_c / 100.0).toFixed(2);
     document.getElementById("medical_i_fee").innerHTML = (medical_base * medical_i / 100.0).toFixed(2);
 
-    var birth_base = document.getElementById("birth_base").value;
+    // var birth_base = document.getElementById("birth_base").value;
+    var birth_base = injury_base;
+    document.getElementById("birth_base").value = injury_base;
     var birth_c = document.getElementById("birth_c").value;
     var birth_i = document.getElementById("birth_i").value;
     document.getElementById("birth_c_fee").innerHTML = (birth_base * birth_c / 100.0).toFixed(2);
@@ -79,7 +85,8 @@ function update_data(){
         </tr>
         <tr>
             <td>养老</td>
-            <td><input onchange="update_data()" value="{{ m_base['endowment_base'] }}" type="text" class="form-control"  id="endowment_base" size="6"></td>
+{#            <td><input onchange="update_data()" value="{{ m_base['endowment_base'] }}" type="text" class="form-control"  id="endowment_base" size="6"></td>#}
+            <td><input readonly="readonly" id="endowment_base" class="form-control" value="{{ m_base['endowment_base'] }}"></td>
             <td><input readonly="readonly" id="endowment_c" class="form-control" value="{{ m_base['endowment_c'] }}"></td>
             <td><p id="endowment_c_fee" class="form-control">{{ m_base['endowment_c_fee'] }}</p></td>
             <td><input readonly="readonly" id="endowment_i" class="form-control" value="{{ m_base['endowment_i'] }}"></td>
@@ -87,7 +94,8 @@ function update_data(){
         </tr>
         <tr>
             <td>失业</td>
-            <td><input onchange="update_data()" value="{{ m_base['unemployment_base'] }}" type="text" class="form-control"  id="unemployment_base" size="6"></td>
+{#            <td><input onchange="update_data()" value="{{ m_base['unemployment_base'] }}" type="text" class="form-control"  id="unemployment_base" size="6"></td>#}
+            <td><input readonly="readonly" id="unemployment_base" class="form-control" value="{{ m_base['unemployment_base'] }}"></td>
             <td><input readonly="readonly" id="unemployment_c" class="form-control" value="{{ m_base['unemployment_c'] }}"></td>
             <td><p id="unemployment_c_fee" class="form-control">{{ m_base['unemployment_c_fee'] }}</p></td>
             <td><input readonly="readonly" id="unemployment_i" class="form-control" value="{{ m_base['unemployment_i'] }}"></td>
@@ -103,7 +111,8 @@ function update_data(){
         </tr>
         <tr>
             <td>生育</td>
-            <td><input onchange="update_data()" value="{{ m_base['birth_base'] }}" type="text" class="form-control"  id="birth_base" size="6"></td>
+{#            <td><input onchange="update_data()" value="{{ m_base['birth_base'] }}" type="text" class="form-control"  id="birth_base" size="6"></td>#}
+            <td><input readonly="readonly" id="birth_base" class="form-control" value="{{ m_base['birth_base'] }}"></td>
             <td><input readonly="readonly" value="{{ m_base['birth_c'] }}" type="text" class="form-control"  id="birth_c"></td>
             <td><p id="birth_c_fee" class="form-control">{{ m_base['birth_c_fee'] }}</p></td>
             <td><input readonly="readonly" value="{{ m_base['birth_i'] }}" type="text" class="form-control"  id="birth_i"></td>
