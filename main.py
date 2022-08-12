@@ -9,6 +9,7 @@ from member_report import Member_reports
 import datetime
 from dateutil.relativedelta import relativedelta
 import flask_excel as excel
+from functools import wraps
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///bigbrother.db'
@@ -204,7 +205,18 @@ def get_cur_month_change_data_dic(cur_month):
     return dic_result
 
 
+def validate_login(func):
+    @wraps(func)
+    def wrapper(**kwargs):
+        if 'username' not in session:
+            return render_template('refresh.html')
+        else:
+            return func(**kwargs)
+    return wrapper
+
+
 @app.route('/insurance_calculator')
+@validate_login
 def insurance_calculator():
     # if 'username' not in session:
     #     return redirect(url_for('home'))
@@ -255,6 +267,7 @@ def logout():
 
 
 @app.route('/company_update/<company_name>', methods=['GET', 'POST'])
+@validate_login
 def company_update(company_name):
     if request.method == 'POST':
         if not request.form['name'] or not request.form['position'] or not request.form['code']\
@@ -276,6 +289,7 @@ def company_update(company_name):
 
 
 @app.route('/company_query', methods=['GET', 'POST'])
+@validate_login
 def company_query():
     if request.method == 'POST':
         if request.form['name'] == "":
@@ -287,10 +301,12 @@ def company_query():
 
 
 @app.route('/company_add', methods=['GET', 'POST'])
+@validate_login
 def company_add():
     if request.method == 'POST':
         if len(Companys.query.filter_by(name=request.form['name']).all()) > 0:
             flash('新增失败，公司名称不能重复！', 'error')
+            render_template('company_add.html', request=request)
         else:
             company = Companys(request.form['name'], request.form['position'], request.form['code'],
                                request.form['zwwname'], request.form['scode'], request.form['injury_ratio'],
@@ -304,6 +320,7 @@ def company_add():
 
 
 @app.route('/member_update/<member_id>', methods=['GET', 'POST'])
+@validate_login
 def member_update(member_id):
     if request.method == 'POST':
         if not request.form['company_name'] or not request.form['name'] or not request.form['id_card']\
@@ -333,6 +350,7 @@ def member_update(member_id):
 
 
 @app.route('/member_query/<company_name>', methods=['GET', 'POST'])
+@validate_login
 def member_query(company_name):
     if request.method == 'POST':
         if request.form['name'] == "" or request.form['company_name'] == "":
@@ -356,10 +374,13 @@ def member_query(company_name):
 
 
 @app.route('/member_add', methods=['GET', 'POST'])
+@validate_login
 def member_add():
     if request.method == 'POST':
         if len(Members.query.filter_by(id_card=request.form['id_card'], company_name=request.form['company_name']).all()) > 0:
             flash('新增失败，%s公司已包含身份证号为%s的人员！'%(request.form['company_name'], request.form['id_card']), 'error')
+            return render_template('member_add.html', companys=Companys.query.all(),
+                                   cur_month=get_cur_month(), request=request)
         else:
             member = Members(request.form['company_name'], request.form['name'], request.form['id_card'],
                              request.form['address'], request.form['nationality'], request.form['begin_month'],
@@ -368,7 +389,7 @@ def member_add():
                              request.form['unemployment'], request.form['medical'],
                              request.form['birth'],
                              request.form['injury_check'], request.form['endowment_check'],
-                             request.form['unemployment_check'],request.form['medical_check'],
+                             request.form['unemployment_check'], request.form['medical_check'],
                              request.form['birth_check'],
                              request.form['is_valid'], session['username'])
             db.session.add(member)
@@ -379,6 +400,7 @@ def member_add():
                            cur_month=get_cur_month())
 
 @app.route('/report_progress/<name>', methods=['GET', 'POST'])
+@validate_login
 def report_progress(name):
     cur_month = get_cur_month()
     # cur_month = "2022-06"
@@ -473,6 +495,7 @@ def report_progress(name):
 
 
 @app.route('/confirm_member/<name>/<readonly>/<cur_month>', methods=['GET', 'POST'])
+@validate_login
 def confirm_member(name, readonly, cur_month):
     m_change_data = get_cur_month_change_data_dic(cur_month)
     company_data = {"company_name": name,
@@ -513,6 +536,7 @@ def confirm_member(name, readonly, cur_month):
 
 
 @app.route('/reportable_check/<name>/<readonly>/<cur_month>', methods=['GET', 'POST'])
+@validate_login
 def reportable_check(name, readonly, cur_month):
     report_data = Reports.query.filter_by(company_name=name, cur_month=cur_month).all()[0]
     members = Members.query.filter_by(company_name=name).all()
@@ -565,6 +589,7 @@ def write_member_report(c_name, cur_month, ill_members, em_payed_members):
 
 
 @app.route('/report_check/<name>/<readonly>/<cur_month>', methods=['GET', 'POST'])
+@validate_login
 def report_check(name, readonly, cur_month):
     report_data = Reports.query.filter_by(company_name=name, cur_month=cur_month).all()[0]
     if request.method == 'POST':
@@ -637,6 +662,7 @@ def report_check(name, readonly, cur_month):
 
 
 @app.route('/pay_check/<name>/<readonly>/<cur_month>', methods=['GET', 'POST'])
+@validate_login
 def pay_check(name, readonly, cur_month):
     report_data = Reports.query.filter_by(company_name=name, cur_month=cur_month).all()[0]
     if request.method == 'POST':
@@ -668,6 +694,7 @@ def pay_check(name, readonly, cur_month):
 
 
 @app.route('/company_pay_history/<company_name>', methods=['GET', 'POST'])
+@validate_login
 def company_pay_history(company_name):
     return render_template('company_pay_history.html',
                            company_name=company_name,
@@ -675,6 +702,7 @@ def company_pay_history(company_name):
 
 
 @app.route('/member_pay_history/<id_card>', methods=['GET', 'POST'])
+@validate_login
 def member_pay_history(id_card):
     name = Members.query.filter_by(id_card=id_card).all()[0].name
     member_reports = Member_reports.query.filter_by(id_card=id_card).order_by(Member_reports.cur_month.asc()).all()
@@ -686,6 +714,7 @@ def member_pay_history(id_card):
 
 
 @app.route("/export_member_record/<cur_month>", methods=['GET'])
+@validate_login
 def export_member_record(cur_month):
     content = [['序号', '公司名称', '姓名', '工资', '绩效', '应发工资', '养老（个人）', '失业（个人）', '医保（个人）', '大病（个人）', '公积金（个人）', '实发工资']]
     member_reports = Member_reports.query.filter_by(cur_month=cur_month).all()

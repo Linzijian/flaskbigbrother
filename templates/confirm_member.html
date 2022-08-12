@@ -107,7 +107,7 @@
     <form name="myform" class="form-inline"
           action="{{ url_for('confirm_member', name=company_data['company_name'], readonly='readonly', cur_month=company_data['cur_month']) }}" method = "post">
         <label for="inputPassword2">确认人员： </label>
-        <input readonly="readonly" value="{{members_check_person}}" required="required" type="text" class="form-control" placeholder="张铁牛" name="name">
+        <input readonly="readonly" value="{{members_check_person}}" required="required" type="text" class="form-control" name="name">
         {% if readonly != "readonly" %}
             &nbsp;&nbsp;<button type="submit" class="btn btn-primary">确认提交</button>
         {% endif %}
