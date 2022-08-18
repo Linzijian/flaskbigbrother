@@ -292,12 +292,10 @@ def company_update(company_name):
 @validate_login
 def company_query():
     if request.method == 'POST':
-        if request.form['name'] == "":
-            render_template('company_query.html', name="", companys=Companys.query.all())
-        else:
+        if request.form['name'] != "":
             return render_template('company_query.html', name=request.form['name'],
                                    companys=Companys.query.filter_by(name=request.form['name']).all())
-    return render_template('company_query.html', name="", companys=Companys.query.all())
+    return render_template('company_query.html', name="", companys=Companys.query.order_by(Companys.is_valid.desc()).all())
 
 
 @app.route('/company_add', methods=['GET', 'POST'])
@@ -305,7 +303,10 @@ def company_query():
 def company_add():
     if request.method == 'POST':
         if len(Companys.query.filter_by(name=request.form['name']).all()) > 0:
-            flash('新增失败，公司名称不能重复！', 'error')
+            flash('新增失败，公司简称不能重复！', 'error')
+            render_template('company_add.html', request=request)
+        elif len(Companys.query.filter_by(short_name=request.form['short_name']).all()) > 0:
+            flash('新增失败，公司全称不能重复！', 'error')
             render_template('company_add.html', request=request)
         else:
             company = Companys(request.form['name'], request.form['position'], request.form['code'],
@@ -373,9 +374,9 @@ def member_query(company_name):
                                cur_month=get_cur_month())
 
 
-@app.route('/member_add', methods=['GET', 'POST'])
+@app.route('/member_add/<company_name>', methods=['GET', 'POST'])
 @validate_login
-def member_add():
+def member_add(company_name):
     if request.method == 'POST':
         if len(Members.query.filter_by(id_card=request.form['id_card'], company_name=request.form['company_name']).all()) > 0:
             flash('新增失败，%s公司已包含身份证号为%s的人员！'%(request.form['company_name'], request.form['id_card']), 'error')
@@ -396,7 +397,9 @@ def member_add():
             db.session.commit()
             flash('新增成功！')
             return redirect(url_for('member_query', company_name="all"))
-    return render_template('member_add.html', companys=Companys.query.all(),
+    if company_name != "all":
+        return render_template('member_add.html', companys=Companys.query.filter_by(is_valid='是', name=company_name).all(), cur_month=get_cur_month())
+    return render_template('member_add.html', companys=Companys.query.filter_by(is_valid='是').all(),
                            cur_month=get_cur_month())
 
 @app.route('/report_progress/<name>', methods=['GET', 'POST'])

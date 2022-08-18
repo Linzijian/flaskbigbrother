@@ -10,8 +10,9 @@
 
 </head>
 <body>
-<p></p>
-<div class="container">
+<br>
+<!--<div class="container">-->
+<div>
     <h4>查询公司信息</h4>
 
     {%- for category, message in get_flashed_messages(with_categories = true) %}
@@ -56,6 +57,9 @@
             <td>{{ company.person }}</td>
             <th>
                 <a href="{{ url_for('company_update', company_name=company.name) }}" class="btn btn-success btn-sm" role="button">查看/修改</a>
+                {% if company.is_valid == '是' %}
+                &nbsp;<a href="{{ url_for('member_add', company_name=company.name) }}" class="btn btn-success btn-sm" role="button">新增人员</a>
+                {% endif %}
                 &nbsp;<a href="{{ url_for('member_query', company_name=company.name) }}" class="btn btn-success btn-sm" role="button">查看人员</a>
                 &nbsp;<a href="{{ url_for('company_pay_history', company_name=company.name) }}" class="btn btn-success btn-sm" role="button">历史缴费</a>
             </th>

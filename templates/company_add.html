@@ -31,19 +31,25 @@ if (x=="" || isNaN(x)){
     <p></p>
     <form name="myform" action="{{ url_for('company_add') }}" method = "post" onsubmit="return validateForm()">
         <div class="form-group row">
-            <label for="inputPassword" class="col-2 col-form-label">公司名称：</label>
-            <div class="col-3">
-                <input required="required" type="text" class="form-control" id="inputPassword" name="name" placeholder="公司名称不能重复" value="{{request.form['name']}}">
-            </div>
             <label for="inputPassword" class="col-2 col-form-label">公司简称：</label>
             <div class="col-3">
-                <input required="required" type="text" class="form-control" id="inputPassword" name="short_name" value="{{request.form['short_name']}}">
+                <input required="required" type="text" class="form-control" id="inputPassword" name="name" placeholder="公司简称不能重复" value="{{request.form['name']}}">
+            </div>
+            <label for="inputPassword" class="col-2 col-form-label">公司全称：</label>
+            <div class="col-3">
+                <input required="required" type="text" class="form-control" id="inputPassword" placeholder="公司全称不能重复" name="short_name" value="{{request.form['short_name']}}">
             </div>
         </div>
         <div class="form-group row">
             <label for="inputPassword" class="col-2 col-form-label">所属区域：</label>
             <div class="col-3">
-                <input required="required" type="text" class="form-control" id="inputPassword" name="position" value="{{request.form['position']}}">
+<!--                <input required="required" type="text" class="form-control" id="inputPassword" name="position" value="{{request.form['position']}}">-->
+                <select class="form-control" name="position">
+                    <option>开发区</option>
+                    <option>保税区</option>
+                    <option>金州</option>
+                    <option>庄河</option>
+                </select>
             </div>
             <label for="inputPassword" class="col-2 col-form-label">辽宁政务网用户名：</label>
             <div class="col-3">

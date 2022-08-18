@@ -36,7 +36,7 @@
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#">人员管理</a>
                 <div class="dropdown-menu">
-                    <a class="dropdown-item" href="{{ url_for('member_add') }}" target="iframe_a">新增</a>
+<!--                    <a class="dropdown-item" href="{{ url_for('member_add', company_name='all') }}" target="iframe_a">新增</a>-->
                     <a class="dropdown-item" href="{{ url_for('member_query', company_name='all') }}" target="iframe_a">查询</a>
                     <!--          <a class="dropdown-item" href="#" target="iframe_a">备用</a>-->
                 </div>
@@ -76,7 +76,9 @@
 </nav>
 
 <!--<iframe src="" name="iframe_a" width="90%" height="500" frameborder="0" class="col-12"></iframe>-->
-<iframe src="" name="iframe_a" frameborder="90%" height="1000" class="col-12"></iframe>
+<iframe src="" name="iframe_a" frameborder="90%" height="1000" class="col-12" ></iframe>
+
+<!--<iframe src="" name="iframe_a" height="1000" width="90%" frameborder="10%"></iframe>-->
 
 </body>
 </html>
