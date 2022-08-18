@@ -320,9 +320,21 @@ def company_add():
     return render_template('company_add.html')
 
 
+@app.route('/member_delete/<member_id>', methods=['GET', 'POST'])
+@validate_login
+def member_delete(member_id):
+    db.session.query(Members).filter(Members.member_id == member_id).delete()
+    db.session.commit()
+    flash('删除成功！')
+    return redirect(url_for('member_query', company_name="all"))
+
+
 @app.route('/member_update/<member_id>', methods=['GET', 'POST'])
 @validate_login
 def member_update(member_id):
+    delete_flag = "0"
+    if session["username"] in ['张铁牛', 'zijlin']:
+        delete_flag = "1"
     if request.method == 'POST':
         if not request.form['company_name'] or not request.form['name'] or not request.form['id_card']\
                 or not request.form['address'] or not request.form['nationality'] or not request.form['begin_month']\
@@ -342,11 +354,13 @@ def member_update(member_id):
             return render_template('member_update.html',
                                    members=Members.query.filter_by(member_id=request.form['member_id']).all(),
                                    companys=Companys.query.all(),
-                                   cur_month=get_cur_month())
+                                   cur_month=get_cur_month(),
+                                   delete_flag=delete_flag)
     return render_template('member_update.html',
                            members=Members.query.filter_by(member_id=member_id).all(),
                            companys=Companys.query.all(),
-                           cur_month=get_cur_month())
+                           cur_month=get_cur_month(),
+                           delete_flag=delete_flag)
                            # cur_month = "2022-06")
 
 

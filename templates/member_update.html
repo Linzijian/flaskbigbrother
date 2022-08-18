@@ -225,7 +225,10 @@ function end_month_monitor(){
         </div>
         <button type="submit" class="btn btn-primary">提交修改</button>
 <!--        &nbsp;&nbsp;<input type="button" class="btn btn-primary" value="返回" onclick="javascript:history.back();">-->
-        <a class="btn btn-primary" href="{{ url_for('member_query', company_name='all') }}">返回</a>
+        &nbsp;<a class="btn btn-primary" href="{{ url_for('member_query', company_name='all') }}">返回</a>
+        {% if delete_flag == "1" %}
+        &nbsp;<a class="btn btn-danger" href="{{ url_for('member_delete', member_id=members[0].member_id) }}">删除</a>
+        {% endif %}
     </form>
 </div>
 
