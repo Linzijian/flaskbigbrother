@@ -294,7 +294,9 @@ def company_query():
     if request.method == 'POST':
         if request.form['name'] != "":
             return render_template('company_query.html', name=request.form['name'],
-                                   companys=Companys.query.filter_by(name=request.form['name']).all())
+                                   # companys=Companys.query.filter_by(name=request.form['name']).all()
+                                   companys=db.session.query(Companys).filter(Companys.name.like("%" + request.form['name'] + "%")).all()
+                                   )
     return render_template('company_query.html', name="", companys=Companys.query.order_by(Companys.is_valid.desc()).all())
 
 
@@ -373,13 +375,17 @@ def member_query(company_name):
                 return render_template('member_query.html', company_name="", name="", members=Members.query.all(), cur_month=get_cur_month())
             if request.form['name'] == "":
                 return render_template('member_query.html', name=request.form['name'], company_name=request.form['company_name'],
-                                       members=Members.query.filter_by(company_name=request.form['company_name']).all(), cur_month=get_cur_month())
+                                       # members=Members.query.filter_by(company_name=request.form['company_name']).all()
+                                       members=db.session.query(Members).filter(Members.company_name.like("%" + request.form['company_name'] + "%")).all()
+                                       , cur_month=get_cur_month())
             if request.form['company_name'] == "":
                 return render_template('member_query.html', name=request.form['name'], company_name=request.form['company_name'],
                                        members=Members.query.filter_by(name=request.form['name']).all(), cur_month=get_cur_month())
         else:
             return render_template('member_query.html', name=request.form['name'], company_name=request.form['company_name'],
-                                   members=Members.query.filter_by(name=request.form['name'], company_name=request.form['company_name']).all(), cur_month=get_cur_month())
+                                   # members=Members.query.filter_by(name=request.form['name'], company_name=request.form['company_name']).all()
+                                   members = db.session.query(Members).filter(and_(Members.company_name.like("%" + request.form['company_name'] + "%"), Members.name.like("%" + request.form['name'] + "%"))).all()
+                                   , cur_month=get_cur_month())
     if company_name == "all":
         return render_template('member_query.html', company_name="", name="", members=Members.query.all(), cur_month=get_cur_month())
     else:
@@ -461,7 +467,8 @@ def report_progress(name):
                     m_change_data[report.company_name]["pay_state"] = "进行中"
                 if report.pay_state == "已完成" and report.pay_list_print == "已完成":
                     m_change_data[report.company_name]["pay_state"] = "已完成"
-            companys = Companys.query.filter_by(name=request.form['name'], is_valid="是").all()
+            # companys = Companys.query.filter_by(name=request.form['name'], is_valid="是").all()
+            companys = db.session.query(Companys).filter(and_(Companys.name.like("%" + request.form['name'] + "%"), Companys.is_valid=="是")).all()
             if request.form['name'] == "":
                 companys = Companys.query.all()
             return render_template('report_progress.html', name=request.form['name'],
