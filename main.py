@@ -1,3 +1,4 @@
+# encoding=utf8
 from flask import Flask, request, flash, url_for, redirect, render_template, session
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import and_
@@ -419,8 +420,8 @@ def member_add(company_name):
             return redirect(url_for('member_query', company_name="all"))
     if company_name != "all":
         return render_template('member_add.html', companys=Companys.query.filter_by(is_valid='是', name=company_name).all(), cur_month=get_cur_month())
-    return render_template('member_add.html', companys=Companys.query.filter_by(is_valid='是').all(),
-                           cur_month=get_cur_month())
+    # return render_template('member_add.html', companys=Companys.query.filter_by(is_valid='是').all(),
+    #                        cur_month=get_cur_month())
 
 @app.route('/report_progress/<name>', methods=['GET', 'POST'])
 @validate_login

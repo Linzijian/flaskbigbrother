@@ -34,7 +34,7 @@ if (is_valid=="是" && (injury_check!="完成" || endowment_check!="完成" || u
          </div>
     {%- endfor %}
     <p></p>
-    <form name="myform" action="{{ url_for('member_add', company_name='') }}" onsubmit="return validateForm()" method = "post">
+    <form name="myform" action="{{ url_for('member_add', company_name='all') }}" onsubmit="return validateForm()" method = "post">
         <div class="form-group row">
             <label for="inputPassword" class="col-2 col-form-label">公司名称：</label>
             <div class="col-3">
